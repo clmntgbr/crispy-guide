@@ -16,6 +16,9 @@
     "behat/transliterator": {
         "version": "v1.3.0"
     },
+    "cocur/slugify": {
+        "version": "v4.1.0"
+    },
     "composer/package-versions-deprecated": {
         "version": "1.11.99.5"
     },

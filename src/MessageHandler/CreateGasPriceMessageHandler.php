@@ -28,13 +28,13 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
         $gasStation = $this->em->getRepository(GasStation::class)->findOneBy(['id' => $message->getGasStationId()->getId()]);
 
         if (null === $gasStation) {
-            return;
+            throw new \Exception(sprintf('Gas Station is null (id: %s', $message->getGasStationId()->getId()));
         }
 
         $gasType = $this->em->getRepository(GasType::class)->findOneBy(['id' => $message->getGasTypeId()->getId()]);
 
         if (null === $gasType) {
-            return;
+            throw new \Exception(sprintf('Gas Type is null (id: %s', $message->getGasTypeId()->getId()));
         }
 
         $gasPrice = new GasPrice();

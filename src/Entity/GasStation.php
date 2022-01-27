@@ -162,6 +162,11 @@ class GasStation
         return $this;
     }
 
+    public function hasGasService(GasService $gasService): bool
+    {
+        return $this->gasServices->contains($gasService);
+    }
+
     public function removeGasService(GasService $gasService): self
     {
         if ($this->gasServices->removeElement($gasService)) {

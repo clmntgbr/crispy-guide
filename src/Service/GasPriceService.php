@@ -8,6 +8,7 @@ use App\Entity\GasType;
 use App\EntityId\GasStationId;
 use App\EntityId\GasTypeId;
 use App\Message\CreateGasPriceMessage;
+use App\Message\CreateGasServiceMessage;
 use App\Message\CreateGasStationMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -37,7 +38,8 @@ class GasPriceService
     {
         $stations = $this->em->getRepository(GasStation::class)->findGasStationById();
         $types = $this->em->getRepository(GasType::class)->findGasTypeById();
-        $services = $this->em->getRepository(GasService::class)->findGasServiceByLabel();
+
+        //TODO get service by stations, dont send them if they exist via createGasService
 
         $xmlPath = $this->downloadInstantGasPrices();
 
@@ -46,7 +48,7 @@ class GasPriceService
         foreach ($elements as $element) {
             $stationId = (string)$element->attributes()->id;
 
-            if (strpos($stationId, '94') === false && strpos($stationId, '94') !== 0) {
+            if (strpos($stationId, '94') !== 0) {
                 continue;
             }
 
@@ -55,6 +57,7 @@ class GasPriceService
                 $stations[$stationId] = ["id" => $stationId];
             }
 
+            $this->createGasService($stationId, $element);
             $this->createGasPrice($stationId, $element, $types);
         }
 
@@ -74,6 +77,16 @@ class GasPriceService
             "FRANCE",
             json_decode(str_replace("@", "", json_encode($element)), true)
         ));
+    }
+
+    private function createGasService(string $stationId, \SimpleXMLElement $element)
+    {
+        foreach ((array)$element->services->service as $item) {
+            $this->messageBus->dispatch(new CreateGasServiceMessage(
+                new GasStationId($stationId),
+                $item
+            ));
+        }
     }
 
     private function createGasPrice(string $stationId, \SimpleXMLElement $element, array $types)

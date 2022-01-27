@@ -7,6 +7,7 @@ use App\Entity\GasStation;
 use App\Message\CreateGasStationMessage;
 use App\Service\GasStationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class CreateGasStationMessageHandler implements MessageHandlerInterface
@@ -32,7 +33,7 @@ class CreateGasStationMessageHandler implements MessageHandlerInterface
         $gasStation = $this->em->getRepository(GasStation::class)->findOneBy(['id' => $message->getGasStationId()->getId()]);
 
         if ($gasStation instanceof GasStation) {
-            return;
+            throw new UnrecoverableMessageHandlingException(sprintf('Gas Station already exist (id : %s)', $message->getGasStationId()->getId()));
         }
 
         $address = new Address();
