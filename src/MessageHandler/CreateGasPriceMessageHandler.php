@@ -50,6 +50,11 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
         $this->em->flush();
 
         $lastGasPrices = $gasStation->getLastGasPrices();
+        $lastGasPrice = $lastGasPrices[$gasPrice->getGasType()->getId()];
+
+        if ($gasPrice->getDateTimestamp() < $lastGasPrice['timestamp']) {
+            return;
+        }
 
         $lastGasPrices[$gasPrice->getGasType()->getId()] = [
             'id' => $gasPrice->getId(),

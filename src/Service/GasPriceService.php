@@ -132,11 +132,6 @@ class GasPriceService
         }
     }
 
-    public function updateGasStationLastGasPrices(GasStation $gasStation)
-    {
-
-    }
-
     private function downloadInstantGasPrices(): string
     {
         FileSystem::delete(self::PATH, self::FILENAME);
