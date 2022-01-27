@@ -18,4 +18,15 @@ class GasServiceRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, GasService::class);
     }
+
+//    public function findGasServiceByGasStationId()
+//    {
+//        $query = $this->createQueryBuilder('t')
+//            ->select('t.gas, t.reference, t.label')
+//            ->orderBy('t.id', 'ASC')
+//            ->indexBy('t', 't.id')
+//            ->getQuery();
+//
+//        return $query->getResult();
+//    }
 }

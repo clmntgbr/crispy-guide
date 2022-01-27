@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Entity\GasService;
 use App\Entity\GasStation;
 use App\Entity\GasType;
 use App\EntityId\GasStationId;
@@ -36,10 +35,9 @@ class GasPriceService
 
     public function update(): void
     {
-        $stations = $this->em->getRepository(GasStation::class)->findGasStationById();
+        $gasSations = $this->em->getRepository(GasStation::class)->findGasStationById();
+        $gasServices = $this->em->getRepository(GasStation::class)->findGasServiceByGasStationId();
         $types = $this->em->getRepository(GasType::class)->findGasTypeById();
-
-        //TODO get service by stations, dont send them if they exist via createGasService
 
         $xmlPath = $this->downloadInstantGasPrices();
 
@@ -52,12 +50,12 @@ class GasPriceService
                 continue;
             }
 
-            if (!array_key_exists($stationId, $stations)) {
+            if (!array_key_exists($stationId, $gasSations)) {
                 $this->createGasStation($stationId, $element);
-                $stations[$stationId] = ["id" => $stationId];
+                $gasSations[$stationId] = ["id" => $stationId];
             }
 
-            $this->createGasService($stationId, $element);
+            $this->createGasService($stationId, $element, $gasServices);
             $this->createGasPrice($stationId, $element, $types);
         }
 
@@ -79,9 +77,15 @@ class GasPriceService
         ));
     }
 
-    private function createGasService(string $stationId, \SimpleXMLElement $element)
+    private function createGasService(string $stationId, \SimpleXMLElement $element, array $gasServices)
     {
         foreach ((array)$element->services->service as $item) {
+            if (array_key_exists($stationId, $gasServices)) {
+                if (array_key_exists($item, $gasServices[$stationId])) {
+                    continue;
+                }
+            }
+
             $this->messageBus->dispatch(new CreateGasServiceMessage(
                 new GasStationId($stationId),
                 $item
