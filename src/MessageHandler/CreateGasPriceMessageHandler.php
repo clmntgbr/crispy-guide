@@ -2,6 +2,7 @@
 
 namespace App\MessageHandler;
 
+use App\Entity\Currency;
 use App\Entity\GasPrice;
 use App\Entity\GasStation;
 use App\Entity\GasType;
@@ -28,17 +29,24 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
         $gasStation = $this->em->getRepository(GasStation::class)->findOneBy(['id' => $message->getGasStationId()->getId()]);
 
         if (null === $gasStation) {
-            throw new \Exception(sprintf('Gas Station is null (id: %s', $message->getGasStationId()->getId()));
+            throw new \Exception(sprintf('Gas Station is null (id: %s)', $message->getGasStationId()->getId()));
         }
 
         $gasType = $this->em->getRepository(GasType::class)->findOneBy(['id' => $message->getGasTypeId()->getId()]);
 
         if (null === $gasType) {
-            throw new \Exception(sprintf('Gas Type is null (id: %s', $message->getGasTypeId()->getId()));
+            throw new \Exception(sprintf('Gas Type is null (id: %s)', $message->getGasTypeId()->getId()));
+        }
+
+        $currency = $this->em->getRepository(Currency::class)->findOneBy(['reference' => 'eur']);
+
+        if (null === $currency) {
+            throw new \Exception('Currency is null (reference: eur)');
         }
 
         $gasPrice = new GasPrice();
         $gasPrice
+            ->setCurrency($currency)
             ->setGasType($gasType)
             ->setGasStation($gasStation)
             ->setDate(\DateTime::createFromFormat('Y-m-d H:i:s', str_replace("T", " ", substr($message->getDate(), 0, 19))))
@@ -50,10 +58,12 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
         $this->em->flush();
 
         $lastGasPrices = $gasStation->getLastGasPrices();
-        $lastGasPrice = $lastGasPrices[$gasPrice->getGasType()->getId()];
 
-        if ($gasPrice->getDateTimestamp() < $lastGasPrice['timestamp']) {
-            return;
+        if (array_key_exists($gasPrice->getGasType()->getId(), $lastGasPrices)) {
+            $lastGasPrice = $lastGasPrices[$gasPrice->getGasType()->getId()];
+            if ($gasPrice->getDateTimestamp() < $lastGasPrice['timestamp']) {
+                return;
+            }
         }
 
         $lastGasPrices[$gasPrice->getGasType()->getId()] = [

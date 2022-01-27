@@ -2,12 +2,17 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GasPriceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
+ * @ApiResource(
+ *     itemOperations={"get"},
+ *     collectionOperations={"get"}
+ * )
  * @ORM\Entity(repositoryClass=GasPriceRepository::class)
  */
 class GasPrice
@@ -22,6 +27,13 @@ class GasPrice
      * @ORM\Column(type="integer", options={"unsigned"=true})
      */
     private $id;
+
+    /**
+     * @var Currency|null
+     * @ORM\ManyToOne(targetEntity=Currency::class, cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    public $currency;
 
     /**
      * @var GasType|null
@@ -116,6 +128,18 @@ class GasPrice
     public function setGasStation(?GasStation $gasStation): self
     {
         $this->gasStation = $gasStation;
+
+        return $this;
+    }
+
+    public function getCurrency(): ?Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(?Currency $currency): self
+    {
+        $this->currency = $currency;
 
         return $this;
     }
