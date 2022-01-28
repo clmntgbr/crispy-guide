@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+{% endblock %}
+
+{% block body %}
+    {{ gas_station.gasStationStatus.label }}
+
+    <table border="1px solid black">
+        <thead>
+        <tr>
+            <th>Index</th>
+            <th>Gas Station Status Reference</th>
+            <th>Gas Station Status Label</th>
+            <th>Created At</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for gas_station_status_history in gas_station.gasStationStatusHistories %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ gas_station_status_history.gasStationStatus.reference }}</td>
+                <td>{{ gas_station_status_history.gasStationStatus.label }}</td>
+                <td>{{ gas_station_status_history.createdAt|date('d/m/Y h:s:i') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

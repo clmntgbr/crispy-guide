@@ -7,6 +7,7 @@ use App\Entity\GooglePlace;
 use App\EntityId\GasStationId;
 use App\Helper\GasStationStatusHelper;
 use App\Lists\GasStationStatusReference;
+use App\Message\CreateGooglePlaceDetailsMessage;
 use App\Message\CreateGooglePlaceIdAnomalyMessage;
 use App\Message\CreateGooglePlaceMessage;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,6 +44,10 @@ class CreateGooglePlaceMessageHandler implements MessageHandlerInterface
             throw new \Exception(sprintf('Gas Station is null (id: %s', $message->getGasStationId()->getId()));
         }
 
+        if (GasStationStatusReference::PLACE_ID_ANOMALY === $gasStation->getGasStationStatus()->getLabel()) {
+            return;
+        }
+
         $googlePlace = $gasStation->getGooglePlace();
 
         if (null === $googlePlace) {
@@ -61,6 +66,10 @@ class CreateGooglePlaceMessageHandler implements MessageHandlerInterface
 
         $this->gasStationStatusHelper->setStatus(GasStationStatusReference::FOUND_IN_TEXTSEARCH, $gasStation);
 
+        $this->messageBus->dispatch(new CreateGooglePlaceDetailsMessage(
+            new GasStationId($gasStation->getId())
+        ));
+
         $this->em->persist($googlePlace);
         $this->em->persist($gasStation);
         $this->em->flush();
@@ -76,5 +85,8 @@ class CreateGooglePlaceMessageHandler implements MessageHandlerInterface
         $this->messageBus->dispatch(new CreateGooglePlaceIdAnomalyMessage(
             $gasStationIds
         ));
+
+        $this->em->persist($gasStation);
+        $this->em->flush();
     }
 }

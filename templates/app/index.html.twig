@@ -3,4 +3,26 @@
 {% block title %}Hello AppController!{% endblock %}
 
 {% block body %}
+    <table border="1px solid black">
+        <thead>
+        <tr>
+            <th>Index</th>
+            <th>Gas Station Id</th>
+            <th>Gas Station Status </th>
+            <th>Gas Station Address</th>
+            <th>Gas Station Google Place Id</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for gas_station in gas_stations %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td><a href="{{ path('app_id', {'id' : gas_station.id }) }}">{{ gas_station.id }}</a></td>
+                <td>{{ gas_station.gasStationStatus.label }}</td>
+                <td>{{ gas_station.address.street }}</td>
+                <td>{% if gas_station.googlePlace is not null %}{{ gas_station.googlePlace.placeId }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

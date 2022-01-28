@@ -30,7 +30,7 @@ class GasStationStatusHistory
 
     /**
      * @var GasStation|null
-     * @ORM\ManyToOne(targetEntity=GasStation::class, cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=GasStation::class, inversedBy="gasStationStatusHistories", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      */
     public $gasStation;

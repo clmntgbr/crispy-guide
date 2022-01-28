@@ -112,6 +112,12 @@ class GasStation
      */
     private $gasServices;
 
+    /**
+     * @var GasStationStatusHistory[]
+     * @ORM\OneToMany(targetEntity=GasStationStatusHistory::class, mappedBy="gasStation", cascade={"persist"})
+     */
+    private $gasStationStatusHistories;
+
     public function __construct()
     {
         $this->isClosed = false;
@@ -119,6 +125,7 @@ class GasStation
         $this->lastGasPrices = [];
         $this->gasPrices = new ArrayCollection();
         $this->gasServices = new ArrayCollection();
+        $this->gasStationStatusHistories = new ArrayCollection();
     }
 
     public function setId(int $id): self
@@ -323,6 +330,33 @@ class GasStation
     public function setGooglePlace(?GooglePlace $googlePlace): self
     {
         $this->googlePlace = $googlePlace;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GasStationStatusHistory[]
+     */
+    public function getGasStationStatusHistories(): Collection
+    {
+        return $this->gasStationStatusHistories;
+    }
+
+    public function addGasStationStatusHistory(GasStationStatusHistory $gasStationStatusHistory): self
+    {
+        if (!$this->gasStationStatusHistories->contains($gasStationStatusHistory)) {
+            $this->gasStationStatusHistories[] = $gasStationStatusHistory;
+            $gasStationStatusHistory->addGasStation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGasStationStatusHistory(GasStationStatusHistory $gasStationStatusHistory): self
+    {
+        if ($this->gasStationStatusHistories->removeElement($gasStationStatusHistory)) {
+            $gasStationStatusHistory->removeGasStation($this);
+        }
 
         return $this;
     }
