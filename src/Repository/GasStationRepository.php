@@ -30,6 +30,15 @@ class GasStationRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+    public function getGasStationsForDetails()
+    {
+        $query = $this->createQueryBuilder('s')
+            ->select('s')
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
     public function findGasServiceByGasStationId()
     {
         $query = "SELECT s.label, t.id

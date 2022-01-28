@@ -23,9 +23,7 @@ class GasPriceUpdateCommand extends Command
 
     protected function configure(): void
     {
-        $this
-            ->setDescription('Creating Up To Date GasPrices For Each GasStations.')
-        ;
+        $this->setDescription(self::getDefaultDescription());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

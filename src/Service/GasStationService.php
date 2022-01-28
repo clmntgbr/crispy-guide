@@ -4,15 +4,47 @@ namespace App\Service;
 
 use App\Entity\GasStation;
 use Doctrine\ORM\EntityManagerInterface;
+use GuzzleHttp\Client;
 
 class GasStationService
 {
     /** @var EntityManagerInterface */
     private $em;
 
-    public function __construct(EntityManagerInterface $em)
+    /** @var GooglePlaceApi */
+    private $googlePlaceApi;
+
+    public function __construct(EntityManagerInterface $em, GooglePlaceApi $googlePlaceApi)
     {
         $this->em = $em;
+        $this->googlePlaceApi = $googlePlaceApi;
+    }
+
+    public function update()
+    {
+        $gasStations = $this->em->getRepository(GasStation::class)->getGasStationsForDetails();
+
+        $client = new Client();
+
+        $response = $client->request("GET", "https://maps.googleapis.com/maps/api/place/nearbysearch/json", [
+            'query' => [
+                'rankby' => 'distance',
+                'location' => sprintf("%s,%s", 4884700/100000, 241600/100000),
+                'type' => 'gas_station',
+                'key' => "AIzaSyBeSzCbUb3C0JehfhFtrNgWmlf-7UqtvAw",
+            ]
+        ]);
+
+        dump($response->getBody()->getContents());
+        die;
+
+        if (200 == $response->getStatusCode()) {
+            return json_decode($response->getBody()->getContents(), true);
+        }
+
+        foreach ($gasStations as $gasStation) {
+
+        }
     }
 
     public static function isGasStationClosed(array $element, GasStation $gasStation)
