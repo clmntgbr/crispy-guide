@@ -4,6 +4,8 @@ namespace App\MessageHandler;
 
 use App\Entity\Address;
 use App\Entity\GasStation;
+use App\Helper\GasStationStatusHelper;
+use App\Lists\GasStationStatusReference;
 use App\Message\CreateGasStationMessage;
 use App\Service\GasStationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,10 +20,14 @@ class CreateGasStationMessageHandler implements MessageHandlerInterface
     /** @var GasStationService */
     private $gasStationService;
 
-    public function __construct(EntityManagerInterface $em, GasStationService $gasStationService)
+    /** @var GasStationStatusHelper */
+    private $gasStationStatusHelper;
+
+    public function __construct(EntityManagerInterface $em, GasStationService $gasStationService, GasStationStatusHelper  $gasStationStatusHelper)
     {
         $this->em = $em;
         $this->gasStationService = $gasStationService;
+        $this->gasStationStatusHelper = $gasStationStatusHelper;
     }
 
     public function __invoke(CreateGasStationMessage $message)
@@ -53,6 +59,8 @@ class CreateGasStationMessageHandler implements MessageHandlerInterface
             ->setElement($message->getElement())
             ->setAddress($address)
         ;
+
+        $this->gasStationStatusHelper->setStatus(GasStationStatusReference::IN_CREATION, $gasStation);
 
         GasStationService::isGasStationClosed($message->getElement(), $gasStation);
 

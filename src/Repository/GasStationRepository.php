@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\GasStation;
+use App\Lists\GasStationStatusReference;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -34,6 +35,22 @@ class GasStationRepository extends ServiceEntityRepository
     {
         $query = $this->createQueryBuilder('s')
             ->select('s')
+            ->innerJoin('s.gasStationStatus', 'ss')
+            ->where('ss.label = :label')
+            ->setParameter('label', GasStationStatusReference::IN_CREATION)
+            ->setMaxResults(25)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function getGasStationGooglePlaceByPlaceId(string $placeId)
+    {
+        $query = $this->createQueryBuilder('s')
+            ->select('s')
+            ->innerJoin('s.googlePlace', 'ss')
+            ->where('ss.placeId = :placeId')
+            ->setParameter('placeId', $placeId)
             ->getQuery();
 
         return $query->getResult();

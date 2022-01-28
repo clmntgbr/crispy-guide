@@ -80,6 +80,20 @@ class GasStation
     private $address;
 
     /**
+     * @var GooglePlace|null
+     * @ORM\OneToOne(targetEntity=GooglePlace::class, cascade={"persist", "remove"})
+     * @ORM\JoinColumn(name="google_place_id", referencedColumnName="id")
+     */
+    private $googlePlace;
+
+    /**
+     * @var GasStationStatus|null
+     * @ORM\ManyToOne(targetEntity=GasStationStatus::class, cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    public $gasStationStatus;
+
+    /**
      * @var GasPrice[]
      * @ORM\OneToMany(targetEntity=GasPrice::class, mappedBy="gasStation", cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\OrderBy({"date" = "ASC", "gasType" = "ASC"})
@@ -285,6 +299,30 @@ class GasStation
     public function setLastGasPrices(?array $lastGasPrices): self
     {
         $this->lastGasPrices = $lastGasPrices;
+
+        return $this;
+    }
+
+    public function getGasStationStatus(): ?GasStationStatus
+    {
+        return $this->gasStationStatus;
+    }
+
+    public function setGasStationStatus(?GasStationStatus $gasStationStatus): self
+    {
+        $this->gasStationStatus = $gasStationStatus;
+
+        return $this;
+    }
+
+    public function getGooglePlace(): ?GooglePlace
+    {
+        return $this->googlePlace;
+    }
+
+    public function setGooglePlace(?GooglePlace $googlePlace): self
+    {
+        $this->googlePlace = $googlePlace;
 
         return $this;
     }

@@ -2,11 +2,8 @@
 
 namespace App\MessageHandler;
 
-use App\Entity\GasPrice;
 use App\Entity\GasService;
 use App\Entity\GasStation;
-use App\Entity\GasType;
-use App\Message\CreateGasPriceMessage;
 use App\Message\CreateGasServiceMessage;
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
@@ -44,7 +41,7 @@ class CreateGasServiceMessageHandler implements MessageHandlerInterface
             $gasService = new GasService();
             $gasService
                 ->setLabel($message->getLabel())
-                ->setReference($this->slugify->slugify($message->getLabel()))
+                ->setReference($this->slugify->slugify($message->getLabel(), '_'))
             ;
         }
 

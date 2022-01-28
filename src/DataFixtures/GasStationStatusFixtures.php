@@ -2,26 +2,26 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Currency;
-use App\Lists\CurrencyReference;
+use App\Entity\GasStationStatus;
+use App\Lists\GasStationStatusReference;
 use Cocur\Slugify\Slugify;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class CurrencyFixtures extends Fixture
+class GasStationStatusFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
         $slugify = new Slugify();
 
-        foreach (CurrencyReference::getConstantsList() as $constant) {
-            $currency = new Currency();
-            $currency
+        foreach (GasStationStatusReference::getConstantsList() as $constant) {
+            $gasStationStatus = new GasStationStatus();
+            $gasStationStatus
                 ->setLabel($constant)
                 ->setReference($slugify->slugify($constant, '_'))
             ;
 
-            $manager->persist($currency);
+            $manager->persist($gasStationStatus);
         }
 
         $manager->flush();

@@ -3,8 +3,12 @@
 namespace App\Service;
 
 use App\Entity\GasStation;
+use App\EntityId\GasStationId;
+use App\Helper\GasStationStatusHelper;
+use App\Lists\GasStationStatusReference;
+use App\Message\CreateGooglePlaceMessage;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Client;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class GasStationService
 {
@@ -14,36 +18,36 @@ class GasStationService
     /** @var GooglePlaceApi */
     private $googlePlaceApi;
 
-    public function __construct(EntityManagerInterface $em, GooglePlaceApi $googlePlaceApi)
+    /** @var MessageBusInterface */
+    private $messageBus;
+
+    /** @var GasStationStatusHelper */
+    private $gasStationStatusHelper;
+
+    public function __construct(EntityManagerInterface $em, GooglePlaceApi $googlePlaceApi, GasStationStatusHelper $gasStationStatusHelper, MessageBusInterface $messageBus)
     {
         $this->em = $em;
         $this->googlePlaceApi = $googlePlaceApi;
+        $this->gasStationStatusHelper = $gasStationStatusHelper;
+        $this->messageBus = $messageBus;
     }
 
     public function update()
     {
+        /** @var GasStation[]|null $gasStations */
         $gasStations = $this->em->getRepository(GasStation::class)->getGasStationsForDetails();
 
-        $client = new Client();
-
-        $response = $client->request("GET", "https://maps.googleapis.com/maps/api/place/nearbysearch/json", [
-            'query' => [
-                'rankby' => 'distance',
-                'location' => sprintf("%s,%s", 4884700/100000, 241600/100000),
-                'type' => 'gas_station',
-                'key' => "AIzaSyBeSzCbUb3C0JehfhFtrNgWmlf-7UqtvAw",
-            ]
-        ]);
-
-        dump($response->getBody()->getContents());
-        die;
-
-        if (200 == $response->getStatusCode()) {
-            return json_decode($response->getBody()->getContents(), true);
-        }
-
         foreach ($gasStations as $gasStation) {
+            $response = $this->googlePlaceApi->textSearch($gasStation);
+            if (null === $response) {
+                $this->gasStationStatusHelper->setStatus(GasStationStatusReference::NOT_FOUND_IN_TEXTSEARCH, $gasStation);
+                continue;
+            }
 
+            $this->messageBus->dispatch(new CreateGooglePlaceMessage(
+                new GasStationId($gasStation->getId()),
+                $response['place_id']
+            ));
         }
     }
 
