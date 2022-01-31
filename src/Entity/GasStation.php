@@ -7,7 +7,6 @@ use App\Repository\GasStationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
@@ -19,7 +18,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class GasStation
 {
-    use BlameableEntity;
     use TimestampableEntity;
 
     /**
@@ -74,14 +72,14 @@ class GasStation
 
     /**
      * @var Address|null
-     * @ORM\OneToOne(targetEntity=Address::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Address::class, cascade={"persist", "remove"}, fetch="EAGER")
      * @ORM\JoinColumn(name="address_id", referencedColumnName="id")
      */
     private $address;
 
     /**
      * @var GooglePlace|null
-     * @ORM\OneToOne(targetEntity=GooglePlace::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=GooglePlace::class, cascade={"persist", "remove"}, fetch="EAGER")
      * @ORM\JoinColumn(name="google_place_id", referencedColumnName="id")
      */
     private $googlePlace;
@@ -126,6 +124,11 @@ class GasStation
         $this->gasPrices = new ArrayCollection();
         $this->gasServices = new ArrayCollection();
         $this->gasStationStatusHistories = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return (string)$this->id;
     }
 
     public function setId(int $id): self

@@ -5,7 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GasPriceRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
@@ -17,7 +16,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class GasPrice
 {
-    use BlameableEntity;
     use TimestampableEntity;
 
     /**

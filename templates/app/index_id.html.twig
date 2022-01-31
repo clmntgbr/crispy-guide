@@ -4,8 +4,6 @@
 {% endblock %}
 
 {% block body %}
-    {{ gas_station.gasStationStatus.label }}
-
     <table border="1px solid black">
         <thead>
         <tr>
@@ -22,6 +20,33 @@
                 <td>{{ gas_station_status_history.gasStationStatus.reference }}</td>
                 <td>{{ gas_station_status_history.gasStationStatus.label }}</td>
                 <td>{{ gas_station_status_history.createdAt|date('d/m/Y h:s:i') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% for gas_price in gas_station.lastGasPrices %}
+        <p>{{ gas_price.id }} - {{ gas_price.date }} - {{ gas_price.timestamp }}</p>
+    {% endfor %}
+
+    <table border="1px solid black">
+        <thead>
+        <tr>
+            <th>Index</th>
+            <th>Gas Price Id</th>
+            <th>Gas Price Type</th>
+            <th>Gas Price Value</th>
+            <th>Gas Price Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for gas_price in gas_station.gasPrices %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ gas_price.id }}</td>
+                <td>{{ gas_price.gasType.reference }}</td>
+                <td>{{ gas_price.value }}</td>
+                <td>{{ gas_price.date|date('d/m/Y h:s:i') }}</td>
             </tr>
         {% endfor %}
         </tbody>

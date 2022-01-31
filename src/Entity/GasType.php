@@ -7,7 +7,6 @@ use App\Repository\GasTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
@@ -19,7 +18,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class GasType
 {
-    use BlameableEntity;
     use TimestampableEntity;
 
     /**
@@ -51,6 +49,11 @@ class GasType
     public function __construct()
     {
         $this->gasPrices = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return $this->getLabel();
     }
 
     public function setId(int $id): self

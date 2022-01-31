@@ -5,7 +5,6 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GooglePlaceRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
@@ -14,7 +13,6 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  */
 class GooglePlace
 {
-    use BlameableEntity;
     use TimestampableEntity;
 
     /**

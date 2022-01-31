@@ -6,6 +6,7 @@ use App\Entity\GasStation;
 use App\Helper\GasStationStatusHelper;
 use App\Lists\GasStationStatusReference;
 use App\Message\CreateGooglePlaceDetailsMessage;
+use App\Service\GooglePlaceApi;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
@@ -17,10 +18,14 @@ class CreateGooglePlaceDetailsMessageHandler implements MessageHandlerInterface
     /** @var GasStationStatusHelper */
     private $gasStationStatusHelper;
 
-    public function __construct(EntityManagerInterface $em, GasStationStatusHelper $gasStationStatusHelper)
+    /** @var GooglePlaceApi */
+    private $googlePlaceApi;
+
+    public function __construct(EntityManagerInterface $em, GasStationStatusHelper $gasStationStatusHelper, GooglePlaceApi $googlePlaceApi)
     {
         $this->em = $em;
         $this->gasStationStatusHelper = $gasStationStatusHelper;
+        $this->googlePlaceApi = $googlePlaceApi;
     }
 
     public function __invoke(CreateGooglePlaceDetailsMessage $message)
@@ -39,6 +44,77 @@ class CreateGooglePlaceDetailsMessageHandler implements MessageHandlerInterface
             return;
         }
 
+        $details = $this->googlePlaceApi->placeDetails($gasStation);
+
+        $gasStation->setName($details['name'] ?? null);
+
+        $this->updateGasStationAddress($gasStation, $details);
+        $this->updateGasStationGooglePlace($gasStation, $details);
+
         $this->gasStationStatusHelper->setStatus(GasStationStatusReference::WAITING_VALIDATION, $gasStation);
+
+        $this->em->flush();
+    }
+
+    private function updateGasStationGooglePlace(GasStation $gasStation, array $details)
+    {
+        $googlePlace = $gasStation->getGooglePlace();
+
+        $googlePlace
+            ->setGoogleId($details['id'] ?? null)
+            ->setPlaceId($details['place_id'] ?? null)
+            ->setBusinessStatus($details['business_status'] ?? null)
+            ->setIcon($details['icon'] ?? null)
+            ->setPhoneNumber($details['international_phone_number'] ?? null)
+            ->setCompoundCode($details['plus_code']['compound_code'] ?? null)
+            ->setGlobalCode($details['plus_code']['global_code'] ?? null)
+            ->setGoogleRating($details['rating'] ?? null)
+            ->setRating($details['rating'] ?? null)
+            ->setReference($details['reference'] ?? null)
+            ->setOpeningHours($details['opening_hours']['weekday_text'] ?? null)
+            ->setUserRatingsTotal($details['user_ratings_total'] ?? null)
+            ->setUrl($details['url'] ?? null)
+            ->setWebsite($details['website'] ?? null)
+        ;
+
+        $this->em->persist($googlePlace);
+    }
+
+    private function updateGasStationAddress(GasStation $gasStation, array $details)
+    {
+        $address = $gasStation->getAddress();
+
+        foreach ($details['address_components'] as $component) {
+            foreach ($component['types'] as $type) {
+                switch ($type) {
+                    case 'street_number':
+                        $address->setNumber($component['long_name']);
+                        break;
+                    case 'route':
+                        $address->setStreet($component['long_name']);
+                        break;
+                    case 'locality':
+                        $address->setCity($component['long_name']);
+                        break;
+                    case 'administrative_area_level_1':
+                        $address->setRegion($component['long_name']);
+                        break;
+                    case 'country':
+                        $address->setCountry($component['long_name']);
+                        break;
+                    case 'postal_code':
+                        $address->setPostalCode($component['long_name']);
+                        break;
+                }
+            }
+        }
+
+        $address
+            ->setVicinity($details['formatted_address'] ?? null)
+            ->setLongitude($details['geometry']['location']['lng'] ?? null)
+            ->setLatitude($details['geometry']['location']['lat'] ?? null)
+        ;
+
+        $this->em->persist($address);
     }
 }

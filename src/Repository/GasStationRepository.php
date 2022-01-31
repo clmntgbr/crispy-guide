@@ -38,7 +38,7 @@ class GasStationRepository extends ServiceEntityRepository
             ->innerJoin('s.gasStationStatus', 'ss')
             ->where('ss.label = :label')
             ->setParameter('label', GasStationStatusReference::IN_CREATION)
-            ->setMaxResults(25)
+            ->setMaxResults(15)
             ->getQuery();
 
         return $query->getResult();
