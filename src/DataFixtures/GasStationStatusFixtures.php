@@ -13,14 +13,6 @@ class GasStationStatusFixtures extends Fixture
     {
         $data = [
             [
-                'reference' => GasStationStatusReference::PLACE_ID_ANOMALY,
-                'label' => 'Place Id Anomaly',
-            ],
-            [
-                'reference' => GasStationStatusReference::WAITING_VALIDATION,
-                'label' => 'Waiting Validation',
-            ],
-            [
                 'reference' => GasStationStatusReference::IN_CREATION,
                 'label' => 'In Creation',
             ],
@@ -31,6 +23,14 @@ class GasStationStatusFixtures extends Fixture
             [
                 'reference' => GasStationStatusReference::FOUND_IN_TEXTSEARCH,
                 'label' => 'Found In TextSearch',
+            ],
+            [
+                'reference' => GasStationStatusReference::PLACE_ID_ANOMALY,
+                'label' => 'Place Id Anomaly',
+            ],
+            [
+                'reference' => GasStationStatusReference::WAITING_VALIDATION,
+                'label' => 'Waiting Validation',
             ],
             [
                 'reference' => GasStationStatusReference::OPEN,
