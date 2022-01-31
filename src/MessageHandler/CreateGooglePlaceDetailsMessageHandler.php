@@ -40,7 +40,7 @@ class CreateGooglePlaceDetailsMessageHandler implements MessageHandlerInterface
             throw new \Exception(sprintf('Gas Station is null (id: %s', $message->getGasStationId()->getId()));
         }
 
-        if (GasStationStatusReference::PLACE_ID_ANOMALY === $gasStation->getGasStationStatus()->getLabel()) {
+        if (GasStationStatusReference::PLACE_ID_ANOMALY === $gasStation->getGasStationStatus()->getReference()) {
             return;
         }
 
