@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\GasType;
+use App\Entity\Address;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -11,20 +11,19 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class GasTypeCrudController extends AbstractCrudController
+class AddressCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return GasType::class;
+        return Address::class;
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
             ->remove(Crud::PAGE_DETAIL, Action::DELETE)
-            ->remove(Crud::PAGE_DETAIL, Action::EDIT)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->disable(Action::DELETE, Action::NEW, Action::EDIT)
+            ->disable(Action::DELETE, Action::NEW)
         ;
     }
 
@@ -37,8 +36,15 @@ class GasTypeCrudController extends AbstractCrudController
         if (Crud::PAGE_DETAIL === $pageName) {
             return [
                 IdField::new('id'),
-                TextField::new('reference'),
-                TextField::new('label'),
+                TextField::new('vicinity'),
+                TextField::new('street'),
+                TextField::new('number'),
+                TextField::new('city'),
+                TextField::new('region'),
+                TextField::new('postalCode'),
+                TextField::new('country'),
+                TextField::new('longitude'),
+                TextField::new('latitude'),
                 DateTimeField::new('createdAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),
@@ -49,14 +55,38 @@ class GasTypeCrudController extends AbstractCrudController
         }
 
         if (Crud::PAGE_EDIT === $pageName) {
-            return [];
+            return [
+                IdField::new('id')
+                    ->setFormTypeOption('disabled','disabled'),
+                TextField::new('vicinity'),
+                TextField::new('street'),
+                TextField::new('number'),
+                TextField::new('city'),
+                TextField::new('region'),
+                TextField::new('postalCode'),
+                TextField::new('country'),
+                TextField::new('longitude'),
+                TextField::new('latitude'),
+                DateTimeField::new('createdAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+                DateTimeField::new('updatedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+            ];
         }
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [
                 IdField::new('id'),
-                TextField::new('reference'),
-                TextField::new('label'),
+                TextField::new('vicinity'),
+                TextField::new('street'),
+                TextField::new('number'),
+                TextField::new('city'),
+                TextField::new('region'),
+                TextField::new('postalCode'),
                 DateTimeField::new('createdAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),

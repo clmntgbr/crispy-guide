@@ -17,12 +17,12 @@ class GasStationStatusHelper
         $this->em = $em;
     }
 
-    public function setStatus(string $label, GasStation $gasStation)
+    public function setStatus(string $reference, GasStation $gasStation)
     {
-        $gasStationStatus = $this->em->getRepository(GasStationStatus::class)->findOneBy(['label' => $label]);
+        $gasStationStatus = $this->em->getRepository(GasStationStatus::class)->findOneBy(['reference' => $reference]);
 
         if (null === $gasStationStatus) {
-            throw new \Exception(sprintf('Gas Station Status don\'t exist (label : %s', $label));
+            throw new \Exception(sprintf('Gas Station Status don\'t exist (reference : %s', $reference));
         }
 
         $gasStation->setGasStationStatus($gasStationStatus);

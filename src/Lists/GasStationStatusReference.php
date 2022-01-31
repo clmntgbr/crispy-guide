@@ -8,9 +8,9 @@ class GasStationStatusReference
 {
     use ListTrait;
 
-    public const IN_CREATION = "In Creation";
-    public const FOUND_IN_TEXTSEARCH = "Found In TextSearch";
-    public const NOT_FOUND_IN_TEXTSEARCH = "Not Found In TextSearch";
-    public const PLACE_ID_ANOMALY = "Place Id Anomaly";
-    public const WAITING_VALIDATION = "Waiting Validation";
+    public const IN_CREATION = "in_creation";
+    public const FOUND_IN_TEXTSEARCH = "found_in_textSearch";
+    public const NOT_FOUND_IN_TEXTSEARCH = "not_found_in_textSearch";
+    public const PLACE_ID_ANOMALY = "place_id_anomaly";
+    public const WAITING_VALIDATION = "waiting_validation";
 }

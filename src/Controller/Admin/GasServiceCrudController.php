@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\GasType;
+use App\Entity\GasService;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -11,27 +11,28 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class GasTypeCrudController extends AbstractCrudController
+class GasServiceCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
-        return GasType::class;
+        return GasService::class;
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->remove(Crud::PAGE_DETAIL, Action::DELETE)
-            ->remove(Crud::PAGE_DETAIL, Action::EDIT)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->disable(Action::DELETE, Action::NEW, Action::EDIT)
-        ;
+            ->disable(Action::DELETE)
+            ;
     }
 
     public function configureFields(string $pageName): iterable
     {
         if (Crud::PAGE_NEW === $pageName) {
-            return [];
+            return [
+                TextField::new('reference'),
+                TextField::new('label'),
+            ];
         }
 
         if (Crud::PAGE_DETAIL === $pageName) {
@@ -49,7 +50,21 @@ class GasTypeCrudController extends AbstractCrudController
         }
 
         if (Crud::PAGE_EDIT === $pageName) {
-            return [];
+            return [
+                IdField::new('id')
+                    ->setFormTypeOption('disabled','disabled'),
+                TextField::new('reference')
+                    ->setFormTypeOption('disabled','disabled'),
+                TextField::new('label'),
+                DateTimeField::new('createdAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+                DateTimeField::new('updatedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+            ];
         }
 
         if (Crud::PAGE_INDEX === $pageName) {

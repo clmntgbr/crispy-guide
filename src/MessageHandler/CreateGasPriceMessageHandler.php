@@ -6,6 +6,7 @@ use App\Entity\Currency;
 use App\Entity\GasPrice;
 use App\Entity\GasStation;
 use App\Entity\GasType;
+use App\Lists\CurrencyReference;
 use App\Message\CreateGasPriceMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -39,7 +40,7 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
             throw new UnrecoverableMessageHandlingException(sprintf('Gas Type is null (id: %s)', $message->getGasTypeId()->getId()));
         }
 
-        $currency = $this->em->getRepository(Currency::class)->findOneBy(['reference' => 'eur']);
+        $currency = $this->em->getRepository(Currency::class)->findOneBy(['reference' => CurrencyReference::EUR]);
 
         if (null === $currency) {
             throw new UnrecoverableMessageHandlingException('Currency is null (reference: eur)');

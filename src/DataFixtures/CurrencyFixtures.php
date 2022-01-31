@@ -4,7 +4,6 @@ namespace App\DataFixtures;
 
 use App\Entity\Currency;
 use App\Lists\CurrencyReference;
-use Cocur\Slugify\Slugify;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -12,13 +11,22 @@ class CurrencyFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $slugify = new Slugify();
+        $data = [
+            [
+                'reference' => CurrencyReference::EUR,
+                'label' => 'EUR / €',
+            ],
+            [
+                'reference' => CurrencyReference::USD,
+                'label' => 'USD / $',
+            ]
+        ];
 
-        foreach (CurrencyReference::getConstantsList() as $constant) {
+        foreach ($data as $datum) {
             $currency = new Currency();
             $currency
-                ->setLabel($constant)
-                ->setReference($slugify->slugify($constant, '_'))
+                ->setLabel($datum['label'])
+                ->setReference($datum['reference'])
             ;
 
             $manager->persist($currency);

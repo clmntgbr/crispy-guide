@@ -24,7 +24,7 @@ class CurrencyCrudController extends AbstractCrudController
     {
         return $crud
             ->setDefaultSort(['id' => 'DESC'])
-            ;
+        ;
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -45,12 +45,59 @@ class CurrencyCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        return [
-            IdField::new('id'),
-            TextField::new('reference'),
-            TextField::new('label'),
-            DateTimeField::new('createdAt')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),
-            DateTimeField::new('updatedAt')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),
-        ];
+        if (Crud::PAGE_NEW === $pageName) {
+            return [
+                TextField::new('reference'),
+                TextField::new('label'),
+            ];
+        }
+
+        if (Crud::PAGE_DETAIL === $pageName) {
+            return [
+                IdField::new('id'),
+                TextField::new('reference'),
+                TextField::new('label'),
+                DateTimeField::new('createdAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget(),
+                DateTimeField::new('updatedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget(),
+            ];
+        }
+
+        if (Crud::PAGE_EDIT === $pageName) {
+            return [
+                IdField::new('id')
+                    ->setFormTypeOption('disabled','disabled'),
+                TextField::new('reference')
+                    ->setFormTypeOption('disabled','disabled'),
+                TextField::new('label'),
+                DateTimeField::new('createdAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+                DateTimeField::new('updatedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+            ];
+        }
+
+        if (Crud::PAGE_INDEX === $pageName) {
+            return [
+                IdField::new('id'),
+                TextField::new('reference'),
+                TextField::new('label'),
+                DateTimeField::new('createdAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget(),
+                DateTimeField::new('updatedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget(),
+            ];
+        }
+
+        return [];
     }
 }

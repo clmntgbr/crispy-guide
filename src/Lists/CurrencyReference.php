@@ -8,5 +8,6 @@ class CurrencyReference
 {
     use ListTrait;
 
-    public const EUR = "EUR";
+    public const EUR = 'eur';
+    public const USD = 'usd';
 }

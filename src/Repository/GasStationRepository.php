@@ -36,8 +36,8 @@ class GasStationRepository extends ServiceEntityRepository
         $query = $this->createQueryBuilder('s')
             ->select('s')
             ->innerJoin('s.gasStationStatus', 'ss')
-            ->where('ss.label = :label')
-            ->setParameter('label', GasStationStatusReference::IN_CREATION)
+            ->where('ss.reference = :reference')
+            ->setParameter('reference', GasStationStatusReference::IN_CREATION)
             ->setMaxResults(15)
             ->getQuery();
 
