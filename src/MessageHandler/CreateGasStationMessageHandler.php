@@ -64,6 +64,10 @@ class CreateGasStationMessageHandler implements MessageHandlerInterface
 
         GasStationService::isGasStationClosed($message->getElement(), $gasStation);
 
+        if (null !== $gasStation->getClosedAt()) {
+            $this->gasStationStatusHelper->setStatus(GasStationStatusReference::CLOSED, $gasStation);
+        }
+
         $this->gasStationService->getGasStationInformations($gasStation);
 
         $this->em->persist($gasStation);

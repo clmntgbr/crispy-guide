@@ -32,6 +32,14 @@ class GasStationStatusFixtures extends Fixture
                 'reference' => GasStationStatusReference::FOUND_IN_TEXTSEARCH,
                 'label' => 'Found In TextSearch',
             ],
+            [
+                'reference' => GasStationStatusReference::OPEN,
+                'label' => 'Open',
+            ],
+            [
+                'reference' => GasStationStatusReference::CLOSED,
+                'label' => 'Closed',
+            ],
         ];
 
         foreach ($data as $datum) {

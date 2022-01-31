@@ -13,4 +13,6 @@ class GasStationStatusReference
     public const NOT_FOUND_IN_TEXTSEARCH = "not_found_in_textSearch";
     public const PLACE_ID_ANOMALY = "place_id_anomaly";
     public const WAITING_VALIDATION = "waiting_validation";
+    public const OPEN = "open";
+    public const CLOSED = "closed";
 }

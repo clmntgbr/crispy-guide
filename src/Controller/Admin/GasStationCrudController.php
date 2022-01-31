@@ -42,7 +42,8 @@ class GasStationCrudController extends AbstractCrudController
                 TextField::new('pop'),
                 TextField::new('name'),
                 TextField::new('company'),
-                BooleanField::new('isClosed'),
+                AssociationField::new('address'),
+                AssociationField::new('googlePlace'),
                 BooleanField::new('isFoundOnGouvMap'),
                 AssociationField::new('gasStationStatus'),
                 DateTimeField::new('createdAt')
@@ -58,21 +59,49 @@ class GasStationCrudController extends AbstractCrudController
         }
 
         if (Crud::PAGE_EDIT === $pageName) {
-            return [];
+            return [
+                IdField::new('id')
+                    ->setFormTypeOption('disabled','disabled'),
+                TextField::new('pop'),
+                TextField::new('name'),
+                TextField::new('company'),
+                AssociationField::new('address')
+                    ->setFormTypeOption('disabled','disabled'),
+                AssociationField::new('googlePlace')
+                    ->setFormTypeOption('disabled','disabled'),
+                BooleanField::new('isFoundOnGouvMap'),
+                AssociationField::new('gasStationStatus'),
+                DateTimeField::new('closedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+                DateTimeField::new('createdAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+                DateTimeField::new('updatedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget()
+                    ->setFormTypeOption('disabled','disabled'),
+            ];
         }
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [
                 IdField::new('id'),
                 TextField::new('name'),
-                BooleanField::new('isClosed')->setFormTypeOption('disabled','disabled'),
+                AssociationField::new('gasStationStatus'),
+                AssociationField::new('address'),
+                AssociationField::new('googlePlace'),
+                DateTimeField::new('closedAt')
+                    ->setFormat('dd/MM/Y HH:mm:ss')
+                    ->renderAsNativeWidget(),
                 DateTimeField::new('createdAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),
                 DateTimeField::new('updatedAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),
-                AssociationField::new('gasStationStatus'),
             ];
         }
 

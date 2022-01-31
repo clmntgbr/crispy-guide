@@ -56,12 +56,6 @@ class GasStation
      * @var bool|null
      * @ORM\Column(type="boolean", options={"default" : 0})
      */
-    private $isClosed;
-
-    /**
-     * @var bool|null
-     * @ORM\Column(type="boolean", options={"default" : 0})
-     */
     private $isFoundOnGouvMap;
 
     /**
@@ -118,7 +112,6 @@ class GasStation
 
     public function __construct()
     {
-        $this->isClosed = false;
         $this->isFoundOnGouvMap = false;
         $this->lastGasPrices = [];
         $this->gasPrices = new ArrayCollection();
@@ -249,18 +242,6 @@ class GasStation
     public function setElement(array $element): self
     {
         $this->element = $element;
-
-        return $this;
-    }
-
-    public function getIsClosed(): ?bool
-    {
-        return $this->isClosed;
-    }
-
-    public function setIsClosed(bool $isClosed): self
-    {
-        $this->isClosed = $isClosed;
 
         return $this;
     }

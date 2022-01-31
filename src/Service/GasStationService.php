@@ -56,7 +56,6 @@ class GasStationService
         if (isset($element['fermeture']['attributes']['type']) && "D" == $element['fermeture']['attributes']['type']) {
             $gasStation
                 ->setClosedAt(\DateTime::createFromFormat('Y-m-d H:i:s', str_replace("T", " ", substr($element['fermeture']['attributes']['debut'], 0, 19))))
-                ->setIsClosed(true)
             ;
         }
     }
