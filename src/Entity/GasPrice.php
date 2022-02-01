@@ -75,6 +75,11 @@ class GasPrice
         return $this->value;
     }
 
+    public function getFormatValue(): ?float
+    {
+        return $this->value / 1000;
+    }
+
     public function setValue(int $value): self
     {
         $this->value = $value;

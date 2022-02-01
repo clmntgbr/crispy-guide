@@ -109,7 +109,10 @@ class GooglePlace
 
     public function __toString()
     {
-        return (string)$this->id;
+        if (null === $this->placeId) {
+            return (string)$this->id;
+        }
+        return (string)$this->placeId;
     }
 
     public function getId(): ?int

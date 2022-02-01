@@ -31,6 +31,18 @@ class GasStationRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+    public function findGasStationStatusClosed()
+    {
+        $query = $this->createQueryBuilder('s')
+            ->select('s')
+            ->innerJoin('s.gasStationStatus', 'ss')
+            ->where('ss.reference != :reference')
+            ->setParameter('reference', GasStationStatusReference::CLOSED)
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
     public function getGasStationsForDetails()
     {
         $query = $this->createQueryBuilder('s')
@@ -38,7 +50,7 @@ class GasStationRepository extends ServiceEntityRepository
             ->innerJoin('s.gasStationStatus', 'ss')
             ->where('ss.reference = :reference')
             ->setParameter('reference', GasStationStatusReference::IN_CREATION)
-            ->setMaxResults(15)
+            ->setMaxResults(15) //TODO REMOVE FOR PROD
             ->getQuery();
 
         return $query->getResult();

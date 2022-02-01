@@ -6,18 +6,29 @@ use App\Entity\GasStation;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 
 class GasStationCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
         return GasStation::class;
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setDefaultSort(['updatedAt' => 'DESC'])
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -27,6 +38,20 @@ class GasStationCrudController extends AbstractCrudController
             ->remove(Crud::PAGE_DETAIL, Action::DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->disable(Action::NEW, Action::DELETE)
+        ;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add('id')
+            ->add('company')
+            ->add('pop')
+            ->add('gasStationStatus')
+            ->add(BooleanFilter::new('isFoundOnGouvMap'))
+            ->add(DateTimeFilter::new('createdAt'))
+            ->add(DateTimeFilter::new('updatedAt'))
+            ->add(DateTimeFilter::new('closedAt'))
         ;
     }
 
@@ -88,11 +113,13 @@ class GasStationCrudController extends AbstractCrudController
 
         if (Crud::PAGE_INDEX === $pageName) {
             return [
-                IdField::new('id'),
+                IdField::new('id')->setMaxLength(15),
                 TextField::new('name'),
+                TextField::new('pop'),
                 AssociationField::new('gasStationStatus'),
                 AssociationField::new('address'),
                 AssociationField::new('googlePlace'),
+                NumberField::new('countGasPrices')->setLabel('Gas Prices'),
                 DateTimeField::new('closedAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),

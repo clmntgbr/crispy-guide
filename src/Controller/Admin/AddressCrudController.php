@@ -6,10 +6,12 @@ use App\Entity\Address;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 
 class AddressCrudController extends AbstractCrudController
 {
@@ -24,6 +26,18 @@ class AddressCrudController extends AbstractCrudController
             ->remove(Crud::PAGE_DETAIL, Action::DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->disable(Action::DELETE, Action::NEW)
+        ;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add('city')
+            ->add('region')
+            ->add('postalCode')
+            ->add('country')
+            ->add(DateTimeFilter::new('createdAt'))
+            ->add(DateTimeFilter::new('updatedAt'))
         ;
     }
 

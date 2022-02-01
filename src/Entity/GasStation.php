@@ -144,6 +144,11 @@ class GasStation
         return $this->gasPrices;
     }
 
+    public function getCountGasPrices(): int
+    {
+        return $this->gasPrices->count();
+    }
+
     public function addGasPrice(GasPrice $gasPrice): self
     {
         if (!$this->gasPrices->contains($gasPrice)) {
@@ -326,11 +331,28 @@ class GasStation
         return $this->gasStationStatusHistories;
     }
 
+    public function getPreviousGasStationStatusHistory(): GasStationStatusHistory
+    {
+        $lastGasStationStatusHistory = $this->gasStationStatusHistories->last();
+        $previousGasStationStatusHistory = null;
+
+        foreach ($this->gasStationStatusHistories as $gasStationStatusHistory) {
+            if ($gasStationStatusHistory->getId() !== $lastGasStationStatusHistory->getId()) {
+                $previousGasStationStatusHistory = $gasStationStatusHistory;
+            }
+        }
+
+        if (null === $previousGasStationStatusHistory) {
+            return $lastGasStationStatusHistory;
+        }
+
+        return $previousGasStationStatusHistory;
+    }
+
     public function addGasStationStatusHistory(GasStationStatusHistory $gasStationStatusHistory): self
     {
         if (!$this->gasStationStatusHistories->contains($gasStationStatusHistory)) {
             $this->gasStationStatusHistories[] = $gasStationStatusHistory;
-            $gasStationStatusHistory->addGasStation($this);
         }
 
         return $this;
@@ -338,10 +360,6 @@ class GasStation
 
     public function removeGasStationStatusHistory(GasStationStatusHistory $gasStationStatusHistory): self
     {
-        if ($this->gasStationStatusHistories->removeElement($gasStationStatusHistory)) {
-            $gasStationStatusHistory->removeGasStation($this);
-        }
-
         return $this;
     }
 }

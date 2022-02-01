@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\GasPrice;
 use App\Entity\GasStation;
 use App\EntityId\GasStationId;
 use App\Helper\GasStationStatusHelper;
@@ -48,6 +49,28 @@ class GasStationService
                 new GasStationId($gasStation->getId()),
                 $response['place_id']
             ));
+        }
+    }
+
+    public function updateGasStationStatusClosed()
+    {
+        /** @var GasStation[]|null $gasStations */
+        $gasStations = $this->em->getRepository(GasStation::class)->findGasStationStatusClosed();
+
+        foreach ($gasStations as $gasStation) {
+            if ($gasStation->getGasPrices()->count() <= 0) {
+                $gasStation->setClosedAt(new \DateTime('now'));
+                $this->gasStationStatusHelper->setStatus(GasStationStatusReference::CLOSED, $gasStation);
+                continue;
+            }
+
+            $date = ((new \DateTime('now'))->sub(new \DateInterval('P6M')));
+            /** @var GasPrice $lastGasPrice */
+            $lastGasPrice = $gasStation->getGasPrices()->last();
+            if ($date > $lastGasPrice->getDate()) {
+                $gasStation->setClosedAt($lastGasPrice->getDate());
+                $this->gasStationStatusHelper->setStatus(GasStationStatusReference::CLOSED, $gasStation);
+            }
         }
     }
 
