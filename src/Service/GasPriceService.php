@@ -2,20 +2,25 @@
 
 namespace App\Service;
 
+use App\Entity\Currency;
 use App\Entity\GasStation;
 use App\Entity\GasType;
 use App\EntityId\GasStationId;
 use App\EntityId\GasTypeId;
+use App\Lists\CurrencyReference;
 use App\Message\CreateGasPriceMessage;
 use App\Message\CreateGasServiceMessage;
 use App\Message\CreateGasStationMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class GasPriceService
 {
-    const PATH = 'public/gas/instant/';
-    const FILENAME = 'gas-prices-instant.zip';
+    const PATH = 'public/gas_file/';
+    const FILENAME = 'gas-prices.zip';
+    const YEAR_BEGIN = 2007;
+    const YEAR_END = 2010;
 
     /** @var EntityManagerInterface */
     private $em;
@@ -33,9 +38,9 @@ class GasPriceService
         $this->messageBus = $messageBus;
     }
 
-    public function update(): void
+    public function updateInstantGasPrices(): void
     {
-        $gasSations = $this->em->getRepository(GasStation::class)->findGasStationById();
+        $gasStations = $this->em->getRepository(GasStation::class)->findGasStationById();
         $gasServices = $this->em->getRepository(GasStation::class)->findGasServiceByGasStationId();
         $types = $this->em->getRepository(GasType::class)->findGasTypeById();
 
@@ -50,9 +55,9 @@ class GasPriceService
                 continue;
             }
 
-            if (!array_key_exists($stationId, $gasSations)) {
+            if (!array_key_exists($stationId, $gasStations)) {
                 $this->createGasStation($stationId, $element);
-                $gasSations[$stationId] = ["id" => $stationId];
+                $gasStations[$stationId] = ["id" => $stationId];
             }
 
             $this->createGasService($stationId, $element, $gasServices);
@@ -60,6 +65,40 @@ class GasPriceService
         }
 
         FileSystem::delete($xmlPath);
+    }
+
+    public function updateYearGasPrices()
+    {
+        $gasStations = $this->em->getRepository(GasStation::class)->findGasStationById();
+        $gasServices = $this->em->getRepository(GasStation::class)->findGasServiceByGasStationId();
+        $types = $this->em->getRepository(GasType::class)->findGasTypeById();
+
+        for ($i=self::YEAR_BEGIN;$i<=self::YEAR_END;$i++) {
+
+            dump(sprintf("%s ...", $i));
+
+            $xmlPath = $this->downloadYearGasPrices($i);
+
+            $elements = simplexml_load_file($xmlPath);
+
+            foreach ($elements as $element) {
+                $stationId = (string)$element->attributes()->id;
+
+//                if (strpos($stationId, '94') !== 0) {
+//                    continue;
+//                }
+
+                if (!array_key_exists($stationId, $gasStations)) {
+                    $this->createGasStation($stationId, $element);
+                    $gasStations[$stationId] = ["id" => $stationId];
+                }
+
+                $this->createGasService($stationId, $element, $gasServices);
+                $this->createYearGasPrice($stationId, $element, $types, $i);
+            }
+
+            FileSystem::delete($xmlPath);
+        }
     }
 
     private function createGasStation(string $stationId, \SimpleXMLElement $element)
@@ -90,6 +129,48 @@ class GasPriceService
                 new GasStationId($stationId),
                 $item
             ));
+        }
+    }
+
+    private function createYearGasPrice(string $stationId, \SimpleXMLElement $element, array $types, string $year)
+    {
+        $currency = $this->em->getRepository(Currency::class)->findOneBy(['reference' => CurrencyReference::EUR]);
+
+        if (null === $currency) {
+            throw new UnrecoverableMessageHandlingException('Currency is null (reference: eur)');
+        }
+
+        foreach ($element->prix as $item) {
+            $typeId = (string)$item->attributes()->id;
+
+            if (null === $typeId || "" === $typeId) {
+                continue;
+            }
+
+            $typeId = $types[$typeId]['id'];
+
+            $date = (string)$item->attributes()->maj;
+
+            $date = str_replace("T", " ", substr($date, 0, 19));
+
+            if (null === $date || "" === $date) {
+                continue;
+            }
+
+            FileSystem::createDirectoryIfDontExist(sprintf('public/sql/gas_prices/%s', $year));
+
+            $date = \DateTime::createFromFormat('Y-m-d H:i:s', str_replace("T", " ", substr($date, 0, 19)));
+
+            $query = sprintf("INSERT INTO gas_price (gas_type_id, gas_station_id, value, date, date_timestamp, created_at, updated_at, currency_id) VALUES (%s, %s, %s, '%s', %s, '%s', '%s', %s);%s",
+                $typeId, $stationId, (int)str_replace([',', '.'], '',
+                (string)$item->attributes()->valeur), $date->format('Y-m-d H:i:s'), $date->getTimestamp(),
+                (new \DateTime('now'))->format('Y-m-d H:i:s'),
+                (new \DateTime('now'))->format('Y-m-d H:i:s'),
+                $currency->getId(),
+                PHP_EOL
+            );
+
+            file_put_contents(sprintf('public/sql/gas_prices/%s/%s', $year, $stationId), $query ,FILE_APPEND);
         }
     }
 
@@ -137,6 +218,29 @@ class GasPriceService
         FileSystem::delete(self::PATH, self::FILENAME);
 
         FileSystem::download($this->dotEnv->findByParameter('GAS_URL'), self::FILENAME, self::PATH);
+
+        if (false === FileSystem::exist(self::PATH, self::FILENAME)) {
+            throw new \Exception();
+        }
+
+        if (false === FileSystem::unzip(sprintf("%s%s", self::PATH, self::FILENAME), self::PATH)) {
+            throw new \Exception();
+        }
+
+        FileSystem::delete(self::PATH, self::FILENAME);
+
+        if (false === $xmlPath = FileSystem::find(self::PATH, "%\.(xml)$%i")) {
+            throw new \Exception();
+        }
+
+        return $xmlPath;
+    }
+
+    private function downloadYearGasPrices(string $year): string
+    {
+        FileSystem::delete(self::PATH, self::FILENAME);
+
+        FileSystem::download(sprintf($this->dotEnv->findByParameter('GAS_URL_YEAR'), $year), self::FILENAME, self::PATH);
 
         if (false === FileSystem::exist(self::PATH, self::FILENAME)) {
             throw new \Exception();

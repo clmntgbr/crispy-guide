@@ -6,6 +6,8 @@
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /public/images/
+/public/sql/
+/public/gas_file/
 /var/
 /vendor/
 /config/jwt/*.pem
