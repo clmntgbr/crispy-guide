@@ -35,8 +35,6 @@
 
         map = L.map('map').setView([defaultCoordinate.latitude, defaultCoordinate.longitude], 12)
 
-        map.scrollWheelZoom.disable()
-
         L.control.scale().addTo(map)
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
