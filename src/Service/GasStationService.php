@@ -66,7 +66,7 @@ class GasStationService
 
             $date = ((new \DateTime('now'))->sub(new \DateInterval('P6M')));
             /** @var GasPrice $lastGasPrice */
-            $lastGasPrice = $gasStation->getGasPrices()->last();
+            $lastGasPrice = $this->em->getRepository(GasPrice::class)->findLastGasPriceByGasStation($gasStation);
             if ($date > $lastGasPrice->getDate()) {
                 $gasStation->setClosedAt($lastGasPrice->getDate());
                 $this->gasStationStatusHelper->setStatus(GasStationStatusReference::CLOSED, $gasStation);
@@ -139,5 +139,20 @@ class GasStationService
                 ->setStreet(sprintf('%s %s', trim($values[7]), trim($values[8])))
             ;
         }
+    }
+
+    /**
+     * @param string|null $longitude
+     * @param string|null $latitude
+     * @param string|null $radius
+     */
+    public function getGasStationForMap($longitude, $latitude, $radius)
+    {
+        if (is_null($longitude) || is_null($latitude) || is_null($radius)) {
+            throw new \Exception('Parameters are missing.');
+        }
+
+        return $this->em->getRepository(GasStation::class)->getGasStationsForMap($longitude, $latitude, $radius);
+
     }
 }

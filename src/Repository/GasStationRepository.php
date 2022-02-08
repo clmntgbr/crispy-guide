@@ -56,6 +56,19 @@ class GasStationRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
+    public function getGasStationsForMap(string $longitude, string $latitude, string $radius)
+    {
+        $query = "SELECT s.id, s.address_id, s.company, s.name, s.last_gas_prices, s.gas_station_status_id, s.google_place_id, a.*, (SQRT(POW(69.1 * (a.latitude - $latitude), 2) + POW(69.1 * ($longitude - a.longitude) * COS(a.latitude / 57.3), 2))*1000) as distance
+                  FROM gas_station s
+                  INNER JOIN address a ON s.address_id = a.id
+                  WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL
+                  HAVING `distance` < $radius
+                  ORDER BY `distance` ASC LIMIT 150;";
+
+        $statement = $this->getEntityManager()->getConnection()->prepare($query);
+        return $statement->executeQuery()->fetchAllAssociative();
+    }
+
     public function getGasStationGooglePlaceByPlaceId(string $placeId)
     {
         $query = $this->createQueryBuilder('s')

@@ -287,6 +287,17 @@ class GasStation
         return $this;
     }
 
+    public function adminLastGasPrices()
+    {
+        $data = [];
+        foreach ($this->lastGasPrices as $key => $item) {
+            $string = sprintf('Gas Type Id: %s, Gas Type Label: %s, Gas Price Id : %s, Gas Price Date : %s, Gas Price Value : %s, ', $key, $item['gas_type_label'], $item['id'], $item['date'], $item['price']);
+            $data[] = $string;
+        }
+
+        return $data;
+    }
+
     public function getLastGasPrices()
     {
         return $this->lastGasPrices;

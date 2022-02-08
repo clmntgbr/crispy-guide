@@ -75,12 +75,6 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
             }
         }
 
-        $lastGasPrices[$gasPrice->getGasType()->getId()] = [
-            'id' => $gasPrice->getId(),
-            'date' => $gasPrice->getDate()->format('Y-m-d H:i:s'),
-            'timestamp' => $gasPrice->getDate()->getTimestamp(),
-        ];
-
         $gasStation->setLastGasPrices($lastGasPrices);
 
         if (GasStationStatusReference::CLOSED === $gasStation->getGasStationStatus()->getReference()) {

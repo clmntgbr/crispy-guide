@@ -15,10 +15,10 @@ class CreateGasStationMessage
     /** @var string */
     private $cp;
 
-    /** @var string */
+    /** @var string|null */
     private $longitude;
 
-    /** @var string */
+    /** @var string|null */
     private $latitude;
 
     /** @var string */
@@ -33,7 +33,7 @@ class CreateGasStationMessage
     /** @var array */
     private $element;
 
-    public function __construct(GasStationId $gasStationId, string $pop, string $cp, string $longitude, string $latitude, string $street, string $city, string $country, array $element) {
+    public function __construct(GasStationId $gasStationId, string $pop, string $cp, $longitude, $latitude, string $street, string $city, string $country, array $element) {
         $this->gasStationId = $gasStationId;
         $this->pop = $pop;
         $this->cp = $cp;
@@ -60,12 +60,14 @@ class CreateGasStationMessage
         return $this->cp;
     }
 
-    public function getLongitude(): string
+    /** @return string|null */
+    public function getLongitude()
     {
         return $this->longitude;
     }
 
-    public function getLatitude(): string
+    /** @return string|null */
+    public function getLatitude()
     {
         return $this->latitude;
     }

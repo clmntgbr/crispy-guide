@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\GasPrice;
+use App\Entity\GasStation;
+use App\Entity\GasType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,32 +21,33 @@ class GasPriceRepository extends ServiceEntityRepository
         parent::__construct($registry, GasPrice::class);
     }
 
-    // /**
-    //  * @return GasPrice[] Returns an array of GasPrice objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findLastGasPriceByTypeAndGasStation(GasStation $gasStation, GasType $gasType)
     {
         return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('g.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?GasPrice
-    {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
+            ->where('g.gasStation = :gs')
+            ->andWhere('g.gasType = :gt')
+            ->setParameters([
+                'gs' => $gasStation,
+                'gt' => $gasType,
+            ])
+            ->orderBy('g.id', 'DESC')
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
+
+    public function findLastGasPriceByGasStation(GasStation $gasStation)
+    {
+        return $this->createQueryBuilder('g')
+            ->where('g.gasStation = :gs')
+            ->setParameters([
+                'gs' => $gasStation,
+            ])
+            ->orderBy('g.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

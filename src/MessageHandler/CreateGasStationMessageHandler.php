@@ -46,8 +46,8 @@ class CreateGasStationMessageHandler implements MessageHandlerInterface
         $address
             ->setCity($message->getCity())
             ->setPostalCode($message->getCp())
-            ->setLongitude($message->getLongitude()/100000)
-            ->setLatitude($message->getLatitude()/100000)
+            ->setLongitude($message->getLongitude() ? $message->getLongitude()/100000 : null)
+            ->setLatitude($message->getLatitude() ? $message->getLatitude()/100000 : null)
             ->setCountry($message->getCountry())
             ->setStreet($message->getStreet())
         ;

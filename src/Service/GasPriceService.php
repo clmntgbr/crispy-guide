@@ -20,7 +20,7 @@ class GasPriceService
     const PATH = 'public/gas_file/';
     const FILENAME = 'gas-prices.zip';
     const YEAR_BEGIN = 2007;
-    const YEAR_END = 2010;
+    const YEAR_END = 2022;
 
     /** @var EntityManagerInterface */
     private $em;
@@ -51,7 +51,7 @@ class GasPriceService
         foreach ($elements as $element) {
             $stationId = (string)$element->attributes()->id;
 
-            if (strpos($stationId, '94') !== 0) {
+            if (!in_array(substr($stationId, 0, 2), ['94', '75', '95', '92', '91', '93'])) {
                 continue;
             }
 
@@ -84,9 +84,9 @@ class GasPriceService
             foreach ($elements as $element) {
                 $stationId = (string)$element->attributes()->id;
 
-//                if (strpos($stationId, '94') !== 0) {
-//                    continue;
-//                }
+                if (strpos($stationId, '94') !== 0) {
+                    continue;
+                }
 
                 if (!array_key_exists($stationId, $gasStations)) {
                     $this->createGasStation($stationId, $element);
@@ -157,7 +157,9 @@ class GasPriceService
                 continue;
             }
 
-            FileSystem::createDirectoryIfDontExist(sprintf('public/sql/gas_prices/%s', $year));
+            $department = substr($stationId, 0, 2);
+
+            FileSystem::createDirectoryIfDontExist(sprintf('public/sql/gas_prices/%s/%s', $year, $department));
 
             $date = \DateTime::createFromFormat('Y-m-d H:i:s', str_replace("T", " ", substr($date, 0, 19)));
 
@@ -170,7 +172,7 @@ class GasPriceService
                 PHP_EOL
             );
 
-            file_put_contents(sprintf('public/sql/gas_prices/%s/%s', $year, $stationId), $query ,FILE_APPEND);
+            file_put_contents(sprintf('public/sql/gas_prices/%s/%s/%s', $year, $department, $stationId), $query ,FILE_APPEND);
         }
     }
 

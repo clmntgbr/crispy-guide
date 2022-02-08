@@ -24,7 +24,7 @@ class GasPriceCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setDefaultSort(['id' => 'DESC', 'gasStation' => 'ASC'])
+            ->setDefaultSort(['date' => 'DESC', 'gasStation' => 'ASC'])
         ;
     }
 
@@ -63,7 +63,7 @@ class GasPriceCrudController extends AbstractCrudController
                 IdField::new('id'),
                 AssociationField::new('gasType'),
                 AssociationField::new('gasStation'),
-                IntegerField::new('formatValue'),
+                IntegerField::new('value'),
                 DateTimeField::new('date')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),
                 DateTimeField::new('createdAt')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),
                 DateTimeField::new('updatedAt')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),
@@ -76,7 +76,7 @@ class GasPriceCrudController extends AbstractCrudController
                 IdField::new('id'),
                 AssociationField::new('gasType'),
                 AssociationField::new('gasStation'),
-                IntegerField::new('formatValue'),
+                IntegerField::new('value'),
                 DateTimeField::new('date')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),
                 DateTimeField::new('createdAt')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),
                 DateTimeField::new('updatedAt')->setFormat('dd/MM/Y HH:mm:ss')->renderAsNativeWidget(),

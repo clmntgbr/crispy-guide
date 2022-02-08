@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    Gas Stations
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"/>
+    <style>
+        #app_gas_stations #map {
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+            position: absolute;
+        }
+
+        body {
+            margin: 0;
+        }
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div id="map" class="gas_stations"></div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="application/javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script  type="application/javascript">
+        const defaultCoordinate = {'latitude': 48.855680, 'longitude': 2.347045}
+        var marker = 'marker'
+
+        map = L.map('map').setView([defaultCoordinate.latitude, defaultCoordinate.longitude], 12)
+
+        map.scrollWheelZoom.disable()
+
+        L.control.scale().addTo(map)
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            maxZoom: 18,
+            id: 'mapbox/outdoors-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: '{{ key_map }}'
+        }).addTo(map)
+
+        var group = L.featureGroup().addTo(map)
+
+        map.locate({setView: true, maxZoom: 13})
+
+        map.on('locationfound', function (e) {
+            var mapBoundNorthEast = map.getBounds().getNorthEast()
+            var radius = mapBoundNorthEast.distanceTo(map.getCenter())
+
+            getGasStations(e.latlng.lat, e.latlng.lng, radius)
+        })
+
+        map.on('moveend', function (e) {
+            var mapBoundNorthEast = map.getBounds().getNorthEast()
+            var radius = mapBoundNorthEast.distanceTo(map.getCenter())
+
+            getGasStations(e.target.getCenter().lat, e.target.getCenter().lng, radius)
+        })
+
+        function getGasStations(latitude, longitude, radius) {
+            $.get({
+                url: '{{ path('ajax_gas_stations') }}',
+                type: 'GET',
+                async: true,
+                data: {
+                    'latitude': latitude,
+                    'longitude': longitude,
+                    'radius': radius
+                },
+                success: function (elements, statut) {
+
+                    group.clearLayers()
+
+                    $.each(elements, function(index, element) {
+                        L.marker([parseFloat(element.latitude), parseFloat(element.longitude)]).addTo(group)
+                    })
+
+                }
+            })
+        }
+
+    </script>
+{% endblock %}

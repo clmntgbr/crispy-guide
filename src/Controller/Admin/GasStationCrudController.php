@@ -8,11 +8,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
@@ -71,6 +71,8 @@ class GasStationCrudController extends AbstractCrudController
                 AssociationField::new('googlePlace'),
                 BooleanField::new('isFoundOnGouvMap'),
                 AssociationField::new('gasStationStatus'),
+                ArrayField::new('gasServices'),
+                ArrayField::new('adminLastGasPrices')->setLabel('Last Gas Prices'),
                 DateTimeField::new('createdAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),
@@ -119,7 +121,6 @@ class GasStationCrudController extends AbstractCrudController
                 AssociationField::new('gasStationStatus'),
                 AssociationField::new('address'),
                 AssociationField::new('googlePlace'),
-                NumberField::new('countGasPrices')->setLabel('Gas Prices'),
                 DateTimeField::new('closedAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),
