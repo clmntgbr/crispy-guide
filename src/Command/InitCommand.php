@@ -2,13 +2,13 @@
 
 namespace App\Command;
 
-use App\Entity\GasPrice;
 use App\Entity\GasStation;
-use App\Entity\GasType;
+use App\Service\GasPriceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class InitCommand extends Command
@@ -26,10 +26,14 @@ class InitCommand extends Command
     /** @var EntityManagerInterface */
     private $em;
 
-    public function __construct(KernelInterface $kernel, EntityManagerInterface $em, string $name = null)
+    /** @var GasPriceService */
+    private $gasPriceService;
+
+    public function __construct(KernelInterface $kernel, EntityManagerInterface $em, GasPriceService $gasPriceService, string $name = null)
     {
         parent::__construct($name);
         $this->kernel = $kernel;
+        $this->gasPriceService = $gasPriceService;
         $this->em = $em;
     }
 
@@ -40,7 +44,7 @@ class InitCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-//        $io = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 //
 //        $application = new Application($this->kernel);
 //        $application->setAutoExit(false);
@@ -128,42 +132,43 @@ class InitCommand extends Command
 //
 //        $io->progressFinish();
 
-        $io->title('Update Gas Stations Last Gas Prices');
+//        $io->title('Update Gas Stations Last Gas Prices');
+//
+//        $gasStations = $this->em->getRepository(GasStation::class)->findAll();
+//        $gasTypes = $this->em->getRepository(GasType::class)->findAll();
+//
+//        $io->progressStart(count($gasStations));
+//
+//        foreach ($gasStations as $gasStation) {
+//            foreach ($gasTypes as $gasType) {
+//                /** @var GasPrice $lastGasPrice */
+//                $lastGasPrice = $this->em->getRepository(GasPrice::class)->findLastGasPriceByTypeAndGasStation($gasStation, $gasType);
+//                if (null === $lastGasPrice) {
+//                    continue;
+//                }
+//
+//                GasPriceService::updateLastGasPrices($gasStation, $lastGasPrice);
+//                $this->gasPriceService->updatePreviousGasPrices($gasStation, $lastGasPrice);
+//            }
+//
+//            $this->em->persist($gasStation);
+//            $this->em->flush();
+//
+//            $io->progressAdvance();
+//        }
+//
+//        $io->progressFinish();
 
         $gasStations = $this->em->getRepository(GasStation::class)->findAll();
-        $gasTypes = $this->em->getRepository(GasType::class)->findAll();
-
-        $io->progressStart(count($gasStations));
 
         foreach ($gasStations as $gasStation) {
-            foreach ($gasTypes as $gasType) {
-                /** @var GasPrice $gasPrice */
-                $gasPrice = $this->em->getRepository(GasPrice::class)->findLastGasPriceByTypeAndGasStation($gasStation, $gasType);
-                if (null === $gasPrice) {
-                    continue;
-                }
-
-                $lastGasPrices = $gasStation->getLastGasPrices();
-
-                $lastGasPrices[$gasPrice->getGasType()->getId()] = [
-                    'id' => $gasPrice->getId(),
-                    'date' => $gasPrice->getDate()->format('Y-m-d H:i:s'),
-                    'timestamp' => $gasPrice->getDate()->getTimestamp(),
-                    'price' => $gasPrice->getValue(),
-                    'gas_type_id' => $gasPrice->getGasType()->getId(),
-                    'gas_type_label' => $gasPrice->getGasType()->getLabel(),
-                ];
-
-                $gasStation->setLastGasPrices($lastGasPrices);
+            if (null === $gasStation->getPreviousGasPrices()) {
+                $gasStation->setPreviousGasPrices([]);
             }
-
             $this->em->persist($gasStation);
-            $this->em->flush();
-
-            $io->progressAdvance();
         }
 
-        $io->progressFinish();
+        $this->em->flush();
 
         return Command::SUCCESS;
     }

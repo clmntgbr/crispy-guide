@@ -99,6 +99,12 @@ class GasStation
     private $lastGasPrices;
 
     /**
+     * @var array
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $previousGasPrices;
+
+    /**
      * @var GasService[]
      * @ORM\ManyToMany(targetEntity=GasService::class, mappedBy="gasStations", cascade={"persist"})
      */
@@ -114,6 +120,7 @@ class GasStation
     {
         $this->isFoundOnGouvMap = false;
         $this->lastGasPrices = [];
+        $this->previousGasPrices = [];
         $this->gasPrices = new ArrayCollection();
         $this->gasServices = new ArrayCollection();
         $this->gasStationStatusHistories = new ArrayCollection();
@@ -298,6 +305,17 @@ class GasStation
         return $data;
     }
 
+    public function adminPreviousGasPrices()
+    {
+        $data = [];
+        foreach ($this->previousGasPrices as $key => $item) {
+            $string = sprintf('Gas Type Id: %s, Gas Type Label: %s, Gas Price Id : %s, Gas Price Date : %s, Gas Price Value : %s, ', $key, $item['gas_type_label'], $item['id'], $item['date'], $item['price']);
+            $data[] = $string;
+        }
+
+        return $data;
+    }
+
     public function getLastGasPrices()
     {
         return $this->lastGasPrices;
@@ -371,6 +389,18 @@ class GasStation
 
     public function removeGasStationStatusHistory(GasStationStatusHistory $gasStationStatusHistory): self
     {
+        return $this;
+    }
+
+    public function getPreviousGasPrices(): ?array
+    {
+        return $this->previousGasPrices;
+    }
+
+    public function setPreviousGasPrices(?array $previousGasPrices): self
+    {
+        $this->previousGasPrices = $previousGasPrices;
+
         return $this;
     }
 }

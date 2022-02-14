@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Currency;
+use App\Entity\GasPrice;
 use App\Entity\GasStation;
 use App\Entity\GasType;
 use App\EntityId\GasStationId;
@@ -213,6 +214,47 @@ class GasPriceService
                 (string)$item->attributes()->valeur
             ));
         }
+    }
+
+    public static function updateLastGasPrices(GasStation $gasStation, GasPrice $gasPrice)
+    {
+        $lastGasPrices = $gasStation->getLastGasPrices();
+
+        $lastGasPrices[$gasPrice->getGasType()->getId()] = [
+            'id' => $gasPrice->getId(),
+            'date' => $gasPrice->getDate()->format('Y-m-d H:i:s'),
+            'timestamp' => $gasPrice->getDate()->getTimestamp(),
+            'price' => $gasPrice->getValue(),
+            'gas_type_id' => $gasPrice->getGasType()->getId(),
+            'gas_type_label' => $gasPrice->getGasType()->getLabel(),
+            'gas_station_id' => $gasPrice->getGasStation()->getId(),
+        ];
+
+        $gasStation->setLastGasPrices($lastGasPrices);
+    }
+
+    public function updatePreviousGasPrices(GasStation $gasStation, GasPrice $gasPrice)
+    {
+        /** @var GasPrice|null $previousGasPrice */
+        $previousGasPrice = $this->em->getRepository(GasPrice::class)->findLastGasPriceByTypeAndGasStationExceptId($gasStation, $gasPrice->getGasType(), $gasPrice->getId());
+
+        if (null === $previousGasPrice) {
+            return;
+        }
+
+        $previousGasPrices = $gasStation->getPreviousGasPrices();
+
+        $previousGasPrices[$previousGasPrice->getGasType()->getId()] = [
+            'id' => $previousGasPrice->getId(),
+            'date' => $previousGasPrice->getDate()->format('Y-m-d H:i:s'),
+            'timestamp' => $previousGasPrice->getDate()->getTimestamp(),
+            'price' => $previousGasPrice->getValue(),
+            'gas_type_id' => $previousGasPrice->getGasType()->getId(),
+            'gas_type_label' => $previousGasPrice->getGasType()->getLabel(),
+            'gas_station_id' => $previousGasPrice->getGasStation()->getId(),
+        ];
+
+        $gasStation->setPreviousGasPrices($previousGasPrices);
     }
 
     private function downloadInstantGasPrices(): string

@@ -1,0 +1,100 @@
+@font-face {
+    font-family: "Raleway";
+    src: url("../fonts/Raleway/Raleway-Light.ttf");
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url("../fonts/Raleway/Raleway-Light.ttf");
+}
+
+@font-face {
+    font-family: "Raleway-Bold";
+    src: url("../fonts/Raleway/Raleway-ExtraBold.ttf");
+}
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
+.raleway-bold {
+    font-family: Raleway-Bold, sans-serif;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    font-family: Raleway, sans-serif;
+    background-color: #f2f7fc;
+}
+
+.row {
+    margin: 0 !important;
+}
+
+#app_gas_stations {
+    position: relative;
+    height: 100%;
+
+    .gas_station_popup {
+        border-radius: 8px;
+        overflow: hidden;
+        width: 300px;
+        background-color: #fff;
+        z-index: 1111111111;
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        -webkit-box-shadow: -7px 7px 20px -10px rgba(0, 0, 0, 0.75);
+        -moz-box-shadow: -7px 7px 20px -10px rgba(0, 0, 0, 0.75);
+        box-shadow: -7px 7px 20px -10px rgba(0, 0, 0, 0.75);
+    }
+
+    .gas_station_popup_close {
+        background-image: url("../img/close.png");
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 11;
+        font-weight: bolder;
+        cursor: pointer;
+    }
+
+    #map {
+        width: 100%;
+        height: 100%;
+        display: inline-block;
+        position: absolute;
+    }
+
+    #filters .menu-wrap .ui.form {
+        margin-bottom: 25px
+    }
+
+    #panel {
+        z-index: 11111;
+        width: 300px;
+        height: 100%;
+        position: fixed;
+        display: inline-block;
+        padding: 0 20px 10px 20px;
+        border-right: 1px solid #d4d4d5;
+        background-color: white;
+    }
+
+    .gas_stations_limit {
+        position: fixed;
+        top: 80px;
+        right: 10px;
+        z-index: 1111111111;
+        padding-right: 35px;
+    }
+
+    .ui.form {
+        margin-top: 20px;
+    }
+}

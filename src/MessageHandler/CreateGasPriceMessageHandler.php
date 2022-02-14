@@ -10,6 +10,7 @@ use App\Helper\GasStationStatusHelper;
 use App\Lists\CurrencyReference;
 use App\Lists\GasStationStatusReference;
 use App\Message\CreateGasPriceMessage;
+use App\Service\GasPriceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -22,10 +23,14 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
     /** @var GasStationStatusHelper */
     private $gasStationStatusHelper;
 
-    public function __construct(EntityManagerInterface $em, GasStationStatusHelper $gasStationStatusHelper)
+    /** @var GasPriceService */
+    private $gasPriceService;
+
+    public function __construct(EntityManagerInterface $em, GasStationStatusHelper $gasStationStatusHelper, GasPriceService $gasPriceService)
     {
         $this->em = $em;
         $this->gasStationStatusHelper = $gasStationStatusHelper;
+        $this->gasPriceService = $gasPriceService;
     }
 
     public function __invoke(CreateGasPriceMessage $message)
@@ -66,16 +71,9 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
         $this->em->persist($gasPrice);
         $this->em->flush();
 
-        $lastGasPrices = $gasStation->getLastGasPrices();
+        GasPriceService::updateLastGasPrices($gasStation, $gasPrice);
 
-        if (array_key_exists($gasPrice->getGasType()->getId(), $lastGasPrices)) {
-            $lastGasPrice = $lastGasPrices[$gasPrice->getGasType()->getId()];
-            if ($gasPrice->getDateTimestamp() < $lastGasPrice['timestamp']) {
-                return;
-            }
-        }
-
-        $gasStation->setLastGasPrices($lastGasPrices);
+        $this->gasPriceService->updatePreviousGasPrices($gasStation, $gasPrice);
 
         if (GasStationStatusReference::CLOSED === $gasStation->getGasStationStatus()->getReference()) {
             $this->gasStationStatusHelper->setStatus($gasStation->getPreviousGasStationStatusHistory()->getGasStationStatus()->getReference(), $gasStation);

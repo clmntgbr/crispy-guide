@@ -4,15 +4,19 @@ namespace App\Service;
 
 use App\Entity\GasPrice;
 use App\Entity\GasStation;
+use App\Entity\GasType;
 use App\EntityId\GasStationId;
 use App\Helper\GasStationStatusHelper;
 use App\Lists\GasStationStatusReference;
 use App\Message\CreateGooglePlaceMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 class GasStationService
 {
+    const GAS_PRICES_HTML_TEMPLATE = "<p class='%s' style='font-size: 13px;font-family:Raleway, sans-serif;margin: 0;padding: 2px 8px;'><a class='%s %s' href='%s' style='color:black;font-family: Raleway-Bold, sans-serif!important;'>%s </a>: <span style='font-family:Raleway-Bold, sans-serif;'>%s €</span>&nbsp;&nbsp;(%s %s)</p>";
+
     /** @var EntityManagerInterface */
     private $em;
 
@@ -22,13 +26,22 @@ class GasStationService
     /** @var MessageBusInterface */
     private $messageBus;
 
+    /** @var RouterInterface */
+    private $router;
+
     /** @var GasStationStatusHelper */
     private $gasStationStatusHelper;
 
-    public function __construct(EntityManagerInterface $em, GooglePlaceApi $googlePlaceApi, GasStationStatusHelper $gasStationStatusHelper, MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        GooglePlaceApi $googlePlaceApi,
+        GasStationStatusHelper $gasStationStatusHelper,
+        MessageBusInterface $messageBus,
+        RouterInterface $router
+    ) {
         $this->em = $em;
         $this->googlePlaceApi = $googlePlaceApi;
+        $this->router = $router;
         $this->gasStationStatusHelper = $gasStationStatusHelper;
         $this->messageBus = $messageBus;
     }
@@ -152,7 +165,62 @@ class GasStationService
             throw new \Exception('Parameters are missing.');
         }
 
-        return $this->em->getRepository(GasStation::class)->getGasStationsForMap($longitude, $latitude, $radius);
+        $gasStations = $this->em->getRepository(GasStation::class)->getGasStationsForMap($longitude, $latitude, $radius);
 
+        return $this->createPopUpContent($gasStations);
+    }
+
+    private function createPopUpContent(array $gasStations)
+    {
+        foreach ($gasStations as $key => $gasStation) {
+            $content = "";
+            $lastGasPrices = json_decode($gasStation['last_gas_prices'], true);
+            $previousGasPrices = json_decode($gasStation['previous_gas_prices'], true);
+
+            $gasTypes = $this->em->getRepository(GasType::class)->findAll();
+            $gasStationIdRoute = $this->router->generate('app_gas_stations_id', ['id' => $gasStation['gas_station_id']]);
+
+            /** @var GasType $gasType */
+            foreach ($gasTypes as $gasType) {
+                if (array_key_exists($gasType->getId(), $lastGasPrices)) {
+                    if (!array_key_exists($gasType->getId(), $previousGasPrices)) {
+                        $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_green');
+                        continue;
+                    }
+
+                    if ($lastGasPrices[$gasType->getId()]['price'] > $previousGasPrices[$gasType->getId()]['price']) {
+                        $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_red');
+                        continue;
+                    }
+
+                    if ($lastGasPrices[$gasType->getId()]['price'] == $previousGasPrices[$gasType->getId()]['price']) {
+                        $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_green');
+                        continue;
+                    }
+
+                    $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_orange');
+                }
+            }
+
+            $content .= sprintf("<a href='%s' style='font-family:Raleway-Bold, sans-serif;font-size: 15px;width: auto;border-radius: 0 0 8px 8px;text-align: center;display: block;margin-top: 10px;background-color: #4f9c49;color: #fff;padding: 13px 0;'>Accèder à la fiche</a>", $gasStationIdRoute);
+
+            $gasStations[$key]['content'] = $content;
+        }
+
+        return $gasStations;
+    }
+
+    private function createLastGasPricesHtmlTemplate(array $gasStation, GasType $gasType, array $lastGasPrices, string $reference)
+    {
+        return sprintf(self::GAS_PRICES_HTML_TEMPLATE,
+            $reference,
+            $gasStation['gas_station_id'],
+            $gasType->getId(),
+            'route_gas_type_id',
+            $gasType->getLabel(),
+            $lastGasPrices[$gasType->getId()]['price']/1000,
+            'Dernière MAJ le',
+            $lastGasPrices[$gasType->getId()]['date']
+        );
     }
 }

@@ -73,6 +73,7 @@ class GasStationCrudController extends AbstractCrudController
                 AssociationField::new('gasStationStatus'),
                 ArrayField::new('gasServices'),
                 ArrayField::new('adminLastGasPrices')->setLabel('Last Gas Prices'),
+                ArrayField::new('adminPreviousGasPrices')->setLabel('Previous Gas Prices'),
                 DateTimeField::new('createdAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),
