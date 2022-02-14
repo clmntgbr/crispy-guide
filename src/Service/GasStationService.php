@@ -15,7 +15,19 @@ use Symfony\Component\Routing\RouterInterface;
 
 class GasStationService
 {
-    const GAS_PRICES_HTML_TEMPLATE = "<p class='%s' style='font-size: 13px;font-family:Raleway, sans-serif;margin: 0;padding: 2px 8px;'><a class='%s %s' href='%s' style='color:black;font-family: Raleway-Bold, sans-serif!important;'>%s </a>: <span style='font-family:Raleway-Bold, sans-serif;'>%s €</span>&nbsp;&nbsp;(%s %s)</p>";
+    const GAS_PRICES_HTML_TEMPLATE = "<p id='%s' style='font-size: 13px;font-family:Raleway, sans-serif;margin: 0;padding: 2px 8px;'><a class='%s %s gas_price' style='color:black;font-family: Raleway-Bold, sans-serif!important;'>%s </a>: <span class='%s gas_price' style='font-family:Raleway-Bold, sans-serif;'>%s €</span>&nbsp;&nbsp;(%s %s)</p>";
+    const PUBLIC_GAS_STATIONS_IMG = "img/gas_stations/";
+    const GAS_STATIONS_IMG = [
+        'total' => 'total.jpg',
+        'esso' => 'esso-express.jpg',
+        'shell' => 'shell.jpg',
+        'bp' => 'bp.jpg',
+        'avia' => 'avia.jpg',
+        'intermarche' => 'intermarche.jpg',
+        'leclerc' => 'leclerc.jpg',
+        'carrefour' => 'carrefour.jpg',
+        'auchan' => 'auchan.jpg',
+    ];
 
     /** @var EntityManagerInterface */
     private $em;
@@ -173,12 +185,14 @@ class GasStationService
     private function createPopUpContent(array $gasStations)
     {
         foreach ($gasStations as $key => $gasStation) {
-            $content = "";
+            $gasStationIdRoute = $this->router->generate('app_gas_stations_id', ['id' => $gasStation['gas_station_id']]);
+
+            $content = sprintf("<a href='%s' style='font-family:Raleway, sans-serif;z-index:1;margin-bottom:5px;position: relative;width: auto;height: 200px;display: block;background-position: center;background-size: cover;background-image: url(%s%s);'></a>", $gasStationIdRoute, $gasStation['preview_path'], $gasStation['preview_name']);
+
             $lastGasPrices = json_decode($gasStation['last_gas_prices'], true);
             $previousGasPrices = json_decode($gasStation['previous_gas_prices'], true);
 
             $gasTypes = $this->em->getRepository(GasType::class)->findAll();
-            $gasStationIdRoute = $this->router->generate('app_gas_stations_id', ['id' => $gasStation['gas_station_id']]);
 
             /** @var GasType $gasType */
             foreach ($gasTypes as $gasType) {
@@ -212,15 +226,18 @@ class GasStationService
 
     private function createLastGasPricesHtmlTemplate(array $gasStation, GasType $gasType, array $lastGasPrices, string $reference)
     {
+        $date = new \DateTime();
+        $date->setTimestamp($lastGasPrices[$gasType->getId()]['timestamp']);
+
         return sprintf(self::GAS_PRICES_HTML_TEMPLATE,
+            $lastGasPrices[$gasType->getId()]['id'],
+            $gasType->getReference(),
             $reference,
-            $gasStation['gas_station_id'],
-            $gasType->getId(),
-            'route_gas_type_id',
             $gasType->getLabel(),
+            $reference,
             $lastGasPrices[$gasType->getId()]['price']/1000,
             'Dernière MAJ le',
-            $lastGasPrices[$gasType->getId()]['date']
+            $date->format('d/m/Y')
         );
     }
 }

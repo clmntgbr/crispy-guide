@@ -86,6 +86,13 @@ class GasStation
     public $gasStationStatus;
 
     /**
+     * @var Media|null
+     * @ORM\ManyToOne(targetEntity=Media::class, cascade={"persist"})
+     * @ORM\JoinColumn(nullable=true)
+     */
+    public $preview;
+
+    /**
      * @var GasPrice[]
      * @ORM\OneToMany(targetEntity=GasPrice::class, mappedBy="gasStation", cascade={"persist", "remove"}, fetch="LAZY")
      * @ORM\OrderBy({"date" = "ASC", "gasType" = "ASC"})
@@ -400,6 +407,18 @@ class GasStation
     public function setPreviousGasPrices(?array $previousGasPrices): self
     {
         $this->previousGasPrices = $previousGasPrices;
+
+        return $this;
+    }
+
+    public function getPreview(): ?Media
+    {
+        return $this->preview;
+    }
+
+    public function setPreview(?Media $preview): self
+    {
+        $this->preview = $preview;
 
         return $this;
     }

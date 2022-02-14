@@ -26,6 +26,7 @@
 
         function getGasStations(latitude, longitude, radius) {
             var lowPrices = {}
+
             $.get({
                 url: '{{ path('ajax_gas_stations') }}',
                 type: 'GET',
@@ -45,6 +46,8 @@
                         lastGasPrices = JSON.parse(element.last_gas_prices)
                         previousGasPrices = JSON.parse(element.previous_gas_prices)
 
+                        closeGasStation()
+
                         $.each(lastGasPrices, function(index, lastGasPrice) {
                             var gasTypeId = lastGasPrice.gas_type_id
                             if (lowPrices.hasOwnProperty(gasTypeId)) {
@@ -56,25 +59,30 @@
                             }
                         })
 
-                        L.marker([parseFloat(element.latitude), parseFloat(element.longitude)]).addTo(group).on('click', function(e) {
+                        markers[element.gas_station_id] = L.marker([parseFloat(element.latitude), parseFloat(element.longitude)], {icon: normal}).addTo(group).on('click', function(e) {
                             closeGasStation()
                             $('#' + element.gas_station_id).css('display', 'block')
-
                         })
 
                         var content = "<div class='gas_station_popup' id='" + element.gas_station_id + "'><b class='gas_station_popup_close' onclick='closeGasStation();'></b>" + element['content'] + "</div>"
                         $('#app_gas_stations').append(content)
                         closeGasStation()
-
                     })
-                    closeGasStation()
-                    console.log(lowPrices)
+
+                    $.each(lowPrices, function(index, lowPrice) {
+                        marker = markers[lowPrice.gasStationId]
+                        if (marker) {
+                            marker.setIcon(low)
+                            marker.setZIndexOffset(100)
+                        }
+                        $('#' + lowPrice.gasPriceId + ' .gas_price').css('text-decoration', 'underline')
+                    })
                 }
             })
         }
 
         const defaultCoordinate = {'latitude': 48.855680, 'longitude': 2.347045}
-        var marker = 'marker'
+        var markers = {}
 
         map = L.map('map').setView([defaultCoordinate.latitude, defaultCoordinate.longitude], 12)
 
@@ -89,20 +97,48 @@
 
         var group = L.featureGroup().addTo(map)
 
+        var normal = L.icon({
+            iconUrl: '{{ asset('img/marker/normal.png') }}',
+        })
+        var user = L.icon({
+            iconUrl: '{{ asset('img/marker/user.png') }}',
+        })
+        var low = L.icon({
+            iconUrl: '{{ asset('img/marker/low.png') }}',
+        })
+
         map.locate({setView: true, maxZoom: 13})
 
         map.on('locationfound', function (e) {
-            var mapBoundNorthEast = map.getBounds().getNorthEast()
-            var radius = mapBoundNorthEast.distanceTo(map.getCenter())
+            console.log('locationfound')
+            var radius = e.accuracy
 
-            getGasStations(e.latlng.lat, e.latlng.lng, radius)
+            L.marker(e.latlng).addTo(map)
         })
 
         map.on('moveend', function (e) {
+            console.log('moveend')
+
+            group.clearLayers()
+
             var mapBoundNorthEast = map.getBounds().getNorthEast()
+            mapBoundNorthEast.lng = e.target.getCenter().lng
             var radius = mapBoundNorthEast.distanceTo(map.getCenter())
+            radius = radius - (radius*0.45)
 
             getGasStations(e.target.getCenter().lat, e.target.getCenter().lng, radius)
+        })
+
+        map.on('locationerror', function (e) {
+            console.log('locationerror')
+            var mapBoundNorthEast = map.getBounds().getNorthEast()
+            mapBoundNorthEast.lng = e.target.getCenter().lng
+            var radius = mapBoundNorthEast.distanceTo(map.getCenter())
+            radius = radius - (radius*0.45)
+
+            map.setZoom(13)
+
+            getGasStations(defaultCoordinate.latitude, defaultCoordinate.longitude, radius)
         })
     </script>
 {% endblock %}

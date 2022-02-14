@@ -4,6 +4,7 @@ namespace App\MessageHandler;
 
 use App\Entity\Address;
 use App\Entity\GasStation;
+use App\Entity\Media;
 use App\Helper\GasStationStatusHelper;
 use App\Lists\GasStationStatusReference;
 use App\Message\CreateGasStationMessage;
@@ -52,12 +53,22 @@ class CreateGasStationMessageHandler implements MessageHandlerInterface
             ->setStreet($message->getStreet())
         ;
 
+        $media = new Media();
+        $media
+            ->setPath(GasStationService::PUBLIC_GAS_STATIONS_IMG)
+            ->setName(GasStationService::GAS_STATIONS_IMG['total'])
+            ->setType('jpg')
+            ->setMimeType('image/jpg')
+            ->setSize(0)
+        ;
+
         $gasStation = new GasStation();
         $gasStation
             ->setId($message->getGasStationId()->getId())
             ->setPop($message->getPop())
             ->setElement($message->getElement())
             ->setAddress($address)
+            ->setPreview($media)
         ;
 
         $this->gasStationStatusHelper->setStatus(GasStationStatusReference::IN_CREATION, $gasStation);

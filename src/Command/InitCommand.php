@@ -3,12 +3,18 @@
 namespace App\Command;
 
 use App\Entity\GasStation;
+use App\Entity\Media;
 use App\Service\GasPriceService;
+use App\Service\GasStationService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class InitCommand extends Command
@@ -45,66 +51,67 @@ class InitCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-//
-//        $application = new Application($this->kernel);
-//        $application->setAutoExit(false);
-//
-//        $io->title('doctrine:database:drop');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:database:drop',
-//            '--force' => '--force',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('doctrine:database:create');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:database:create',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('doctrine:migrations:migrate');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:migrations:migrate',
-//            '--no-interaction' => '--no-interaction',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('doctrine:fixtures:load');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:fixtures:load',
-//            '--no-interaction' => '--no-interaction',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('Init Sql');
-//
-//        $finder = new Finder();
-//        $finder->in(self::INIT_FILE_PATH);
-//        $finder->name(self::INIT_FILE_NAME);
-//
-//        foreach( $finder as $file ){
-//            $content = $file->getContents();
-//            $stmt = $this->em->getConnection()->prepare($content);
-//            $stmt->executeQuery();
-//        }
 
+        $application = new Application($this->kernel);
+        $application->setAutoExit(false);
+
+        $io->title('doctrine:database:drop');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:database:drop',
+            '--force' => '--force',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('doctrine:database:create');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:database:create',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('doctrine:migrations:migrate');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:migrations:migrate',
+            '--no-interaction' => '--no-interaction',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('doctrine:fixtures:load');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:fixtures:load',
+            '--no-interaction' => '--no-interaction',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('Init Sql');
+
+        $finder = new Finder();
+        $finder->in(self::INIT_FILE_PATH);
+        $finder->name(self::INIT_FILE_NAME);
+
+        foreach( $finder as $file ){
+            $content = $file->getContents();
+            $stmt = $this->em->getConnection()->prepare($content);
+            $stmt->executeQuery();
+        }
+
+//        $io->title('Init Gas Prices');
+//
 //        $directories = scandir(self::GAS_PRICES_DIRECTORY, SCANDIR_SORT_ASCENDING);
 //        unset($directories[0]);
 //        unset($directories[1]);
 //
-//        $io->title('Init Gas Prices');
 //
 //        $io->progressStart(count($directories));
 //
@@ -158,17 +165,6 @@ class InitCommand extends Command
 //        }
 //
 //        $io->progressFinish();
-
-        $gasStations = $this->em->getRepository(GasStation::class)->findAll();
-
-        foreach ($gasStations as $gasStation) {
-            if (null === $gasStation->getPreviousGasPrices()) {
-                $gasStation->setPreviousGasPrices([]);
-            }
-            $this->em->persist($gasStation);
-        }
-
-        $this->em->flush();
 
         return Command::SUCCESS;
     }

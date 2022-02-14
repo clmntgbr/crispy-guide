@@ -71,6 +71,7 @@ class GasStationCrudController extends AbstractCrudController
                 AssociationField::new('googlePlace'),
                 BooleanField::new('isFoundOnGouvMap'),
                 AssociationField::new('gasStationStatus'),
+                ArrayField::new('gasStationStatusHistories'),
                 ArrayField::new('gasServices'),
                 ArrayField::new('adminLastGasPrices')->setLabel('Last Gas Prices'),
                 ArrayField::new('adminPreviousGasPrices')->setLabel('Previous Gas Prices'),

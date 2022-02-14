@@ -50,7 +50,7 @@ class GasStationRepository extends ServiceEntityRepository
             ->innerJoin('s.gasStationStatus', 'ss')
             ->where('ss.reference = :reference')
             ->setParameter('reference', GasStationStatusReference::IN_CREATION)
-            ->setMaxResults(15) //TODO REMOVE FOR PROD
+            ->setMaxResults(10) //TODO REMOVE FOR PROD
             ->getQuery();
 
         return $query->getResult();
@@ -58,10 +58,11 @@ class GasStationRepository extends ServiceEntityRepository
 
     public function getGasStationsForMap(string $longitude, string $latitude, string $radius)
     {
-        $query = "SELECT s.id as gas_station_id, s.address_id, s.company, s.name, s.last_gas_prices, s.previous_gas_prices, s.gas_station_status_id, s.google_place_id, a.*, (SQRT(POW(69.1 * (a.latitude - $latitude), 2) + POW(69.1 * ($longitude - a.longitude) * COS(a.latitude / 57.3), 2))*1000) as distance
+        $query = "SELECT s.id as gas_station_id, m.path as preview_path, m.name as preview_name, s.address_id, s.company, s.name, s.last_gas_prices, s.previous_gas_prices, s.gas_station_status_id, s.google_place_id, a.*, (SQRT(POW(69.1 * (a.latitude - $latitude), 2) + POW(69.1 * ($longitude - a.longitude) * COS(a.latitude / 57.3), 2))*1000) as distance
                   FROM gas_station s
                   INNER JOIN address a ON s.address_id = a.id
-                  WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL AND SUBSTRING(a.postal_code, 1, 2) = '94'
+                  INNER JOIN media m ON s.preview_id = m.id
+                  WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL
                   HAVING `distance` < $radius
                   ORDER BY `distance` ASC LIMIT 300;";
 

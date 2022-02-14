@@ -3,9 +3,12 @@
 namespace App\MessageHandler;
 
 use App\Entity\GasStation;
+use App\Entity\Media;
 use App\Helper\GasStationStatusHelper;
 use App\Lists\GasStationStatusReference;
 use App\Message\CreateGooglePlaceDetailsMessage;
+use App\Service\FileSystem;
+use App\Service\GasStationService;
 use App\Service\GooglePlaceApi;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -50,6 +53,7 @@ class CreateGooglePlaceDetailsMessageHandler implements MessageHandlerInterface
 
         $this->updateGasStationAddress($gasStation, $details);
         $this->updateGasStationGooglePlace($gasStation, $details);
+        $this->getPreview($gasStation);
 
         $this->gasStationStatusHelper->setStatus(GasStationStatusReference::WAITING_VALIDATION, $gasStation);
 
@@ -78,6 +82,25 @@ class CreateGooglePlaceDetailsMessageHandler implements MessageHandlerInterface
         ;
 
         $this->em->persist($googlePlace);
+    }
+
+    private function getPreview(GasStation $gasStation)
+    {
+        foreach (GasStationService::GAS_STATIONS_IMG as $key => $item) {
+            if (false !== strpos(strtolower(FileSystem::stripAccents($gasStation->getName())), $key)) {
+                $media = $gasStation->getPreview();
+                $media
+                    ->setPath(GasStationService::PUBLIC_GAS_STATIONS_IMG)
+                    ->setName($item)
+                    ->setType('jpg')
+                    ->setMimeType('image/jpg')
+                    ->setSize(0)
+                ;
+                $gasStation->setPreview($media);
+                return;
+            }
+        }
+
     }
 
     private function updateGasStationAddress(GasStation $gasStation, array $details)

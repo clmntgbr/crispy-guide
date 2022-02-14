@@ -40,6 +40,11 @@ class GasStationStatusHistory
      */
     public $gasStationStatus;
 
+    public function __toString()
+    {
+        return $this->gasStationStatus->getLabel();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

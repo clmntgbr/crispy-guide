@@ -47,6 +47,16 @@ html, body {
         -webkit-box-shadow: -7px 7px 20px -10px rgba(0, 0, 0, 0.75);
         -moz-box-shadow: -7px 7px 20px -10px rgba(0, 0, 0, 0.75);
         box-shadow: -7px 7px 20px -10px rgba(0, 0, 0, 0.75);
+
+        .last_gas_prices_color_orange {
+            color: orange!important;
+        }
+        .last_gas_prices_color_green {
+            color: green!important;
+        }
+        .last_gas_prices_color_red {
+            color: red!important;
+        }
     }
 
     .gas_station_popup_close {
