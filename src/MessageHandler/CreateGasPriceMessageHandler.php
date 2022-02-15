@@ -71,8 +71,7 @@ class CreateGasPriceMessageHandler implements MessageHandlerInterface
         $this->em->persist($gasPrice);
         $this->em->flush();
 
-        GasPriceService::updateLastGasPrices($gasStation, $gasPrice);
-
+        $this->gasPriceService->updateLastGasPrices($gasStation, $gasPrice);
         $this->gasPriceService->updatePreviousGasPrices($gasStation, $gasPrice);
 
         if (GasStationStatusReference::CLOSED === $gasStation->getGasStationStatus()->getReference()) {

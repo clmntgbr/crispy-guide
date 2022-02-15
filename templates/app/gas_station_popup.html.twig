@@ -1,0 +1,35 @@
+<div class="gas_station_popup" id="{{ gas_station_id }}" style="display: block;">
+
+    <b class="gas_station_popup_close" onclick="closeGasStation();"></b>
+
+    <a href="{{ gas_station_id_route }}" style="font-family:Raleway, sans-serif;z-index:1;margin-bottom:5px;position: relative;width: auto;height: 200px;display: block;background-position: center;background-size: cover;background-image: url({{ preview_path }}{{ preview_name }});"></a>
+
+    <h3 style="margin: 5px;font-family:Raleway, sans-serif;font-weight: 300;font-size: 17px;">{{ gas_station_name }}</h3>
+    <h5 style="margin: 5px;font-family:Raleway, sans-serif;font-weight: 300;font-size: 14px;">{{ gas_station_company }}</h5>
+    <a {% if gas_station_google_place_id is not null %}href="{{ gas_station_google_place_url }}" {% endif %}style="margin: 5px;font-family:Raleway, sans-serif;font-weight: 300;font-size: 13px;">{{ gas_station_vicinity }}</a>
+
+
+    {% for gas_price in last_gas_prices %}
+
+        {% if previous_gas_prices[gas_price.gas_type_id] is defined %}
+            {% if gas_price['price'] > previous_gas_prices[gas_price.gas_type_id]['price'] %}
+                {% set gas_price_color = 'color_red' %}
+            {% elseif gas_price['price'] <= previous_gas_prices[gas_price.gas_type_id]['price'] %}
+                {% set gas_price_color = 'color_orange' %}
+            {% else %}
+                {% set gas_price_color = 'color_green' %}
+            {% endif %}
+        {% else %}
+            {% set gas_price_color = 'color_green' %}
+        {% endif %}
+
+        <p id="{{ gas_price.id }}" style="font-size: 13px;font-family:Raleway, sans-serif;margin: 0;padding: 2px 8px;"><a class="{{ gas_price.gas_type_reference }} last_gas_prices_{{ gas_price_color }} gas_price" style="color:black;font-family: Raleway-Bold, sans-serif!important;">{{ gas_price.gas_type_label }} </a>:
+            <span class="last_gas_prices_{{ gas_price_color }} gas_price" style="font-family:Raleway-Bold, sans-serif;">{{ gas_price.price/1000 }} €</span>&nbsp;&nbsp;(Dernière MAJ le {{ gas_price.date_format }})
+        </p>
+    {% endfor %}
+
+    <ul style="font-size: 14px;font-family:Raleway, sans-serif;margin: 0;padding: 8px;">{{ gas_services|raw }}</ul>
+
+    <a href="{{ gas_station_id_route }}" style="font-family:Raleway-Bold, sans-serif;font-size: 15px;width: auto;border-radius: 0 0 8px 8px;text-align: center;display: block;margin-top: 10px;background-color: #4f9c49;color: #fff;padding: 13px 0;">Accèder à la fiche</a>
+
+</div>

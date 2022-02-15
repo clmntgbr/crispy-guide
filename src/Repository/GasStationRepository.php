@@ -58,13 +58,22 @@ class GasStationRepository extends ServiceEntityRepository
 
     public function getGasStationsForMap(string $longitude, string $latitude, string $radius)
     {
-        $query = "SELECT s.id as gas_station_id, m.path as preview_path, m.name as preview_name, s.address_id, s.company, s.name, s.last_gas_prices, s.previous_gas_prices, s.gas_station_status_id, s.google_place_id, a.*, (SQRT(POW(69.1 * (a.latitude - $latitude), 2) + POW(69.1 * ($longitude - a.longitude) * COS(a.latitude / 57.3), 2))*1000) as distance
-                  FROM gas_station s
-                  INNER JOIN address a ON s.address_id = a.id
-                  INNER JOIN media m ON s.preview_id = m.id
-                  WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL
-                  HAVING `distance` < $radius
-                  ORDER BY `distance` ASC LIMIT 300;";
+        $query = "  SELECT s.id as gas_station_id, m.path as preview_path, m.name as preview_name, s.address_id, s.company, 
+                    s.name as gas_station_name, s.last_gas_prices, s.previous_gas_prices, s.gas_station_status_id, s.google_place_id, a.vicinity,  a.longitude,  a.latitude,
+                    p.url,
+                    (SQRT(POW(69.1 * (a.latitude - $latitude), 2) + POW(69.1 * ($longitude - a.longitude) * COS(a.latitude / 57.3), 2))*1000) as distance,
+                    (SELECT GROUP_CONCAT(gs.label SEPARATOR '<br>')
+                    FROM gas_stations_services gss
+                    INNER JOIN gas_service gs ON gss.gas_service_id = gs.id
+                    AND gss.gas_station_id = s.id) as gas_services
+                    FROM gas_station s
+                    INNER JOIN address a ON s.address_id = a.id
+                    INNER JOIN media m ON s.preview_id = m.id
+                    LEFT JOIN google_place p ON p.id = s.google_place_id
+                    WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL
+                    HAVING `distance` < $radius
+                    ORDER BY `distance` ASC LIMIT 300;
+        ";
 
         $statement = $this->getEntityManager()->getConnection()->prepare($query);
         return $statement->executeQuery()->fetchAllAssociative();

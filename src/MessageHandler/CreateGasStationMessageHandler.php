@@ -51,6 +51,7 @@ class CreateGasStationMessageHandler implements MessageHandlerInterface
             ->setLatitude($message->getLatitude() ? $message->getLatitude()/100000 : null)
             ->setCountry($message->getCountry())
             ->setStreet($message->getStreet())
+            ->setVicinity(sprintf('%s, %s %s, %s', $message->getStreet(), $message->getCp(), $message->getCity(), $message->getCountry()))
         ;
 
         $media = new Media();

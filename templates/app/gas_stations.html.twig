@@ -64,8 +64,7 @@
                             $('#' + element.gas_station_id).css('display', 'block')
                         })
 
-                        var content = "<div class='gas_station_popup' id='" + element.gas_station_id + "'><b class='gas_station_popup_close' onclick='closeGasStation();'></b>" + element['content'] + "</div>"
-                        $('#app_gas_stations').append(content)
+                        $('#app_gas_stations').append(element['content'])
                         closeGasStation()
                     })
 

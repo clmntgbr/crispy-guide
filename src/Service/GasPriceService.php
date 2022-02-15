@@ -133,6 +133,15 @@ class GasPriceService
         }
     }
 
+    public function getGasPricesByYear(string $gasStationId, $year)
+    {
+        if ("" === $year) {
+            $year = (new \DateTime('now'))->format('Y');
+        }
+
+        return $this->em->getRepository(GasPrice::class)->findGasPricesByYear($gasStationId, $year);
+    }
+
     private function createYearGasPrice(string $stationId, \SimpleXMLElement $element, array $types, string $year)
     {
         $currency = $this->em->getRepository(Currency::class)->findOneBy(['reference' => CurrencyReference::EUR]);
@@ -216,19 +225,9 @@ class GasPriceService
         }
     }
 
-    public static function updateLastGasPrices(GasStation $gasStation, GasPrice $gasPrice)
+    public function updateLastGasPrices(GasStation $gasStation, GasPrice $gasPrice)
     {
-        $lastGasPrices = $gasStation->getLastGasPrices();
-
-        $lastGasPrices[$gasPrice->getGasType()->getId()] = [
-            'id' => $gasPrice->getId(),
-            'date' => $gasPrice->getDate()->format('Y-m-d H:i:s'),
-            'timestamp' => $gasPrice->getDate()->getTimestamp(),
-            'price' => $gasPrice->getValue(),
-            'gas_type_id' => $gasPrice->getGasType()->getId(),
-            'gas_type_label' => $gasPrice->getGasType()->getLabel(),
-            'gas_station_id' => $gasPrice->getGasStation()->getId(),
-        ];
+        $lastGasPrices = $this->updateGasPrices($gasStation->getLastGasPrices(), $gasPrice);
 
         $gasStation->setLastGasPrices($lastGasPrices);
     }
@@ -242,19 +241,26 @@ class GasPriceService
             return;
         }
 
-        $previousGasPrices = $gasStation->getPreviousGasPrices();
-
-        $previousGasPrices[$previousGasPrice->getGasType()->getId()] = [
-            'id' => $previousGasPrice->getId(),
-            'date' => $previousGasPrice->getDate()->format('Y-m-d H:i:s'),
-            'timestamp' => $previousGasPrice->getDate()->getTimestamp(),
-            'price' => $previousGasPrice->getValue(),
-            'gas_type_id' => $previousGasPrice->getGasType()->getId(),
-            'gas_type_label' => $previousGasPrice->getGasType()->getLabel(),
-            'gas_station_id' => $previousGasPrice->getGasStation()->getId(),
-        ];
+        $previousGasPrices = $this->updateGasPrices($gasStation->getPreviousGasPrices(), $previousGasPrice);
 
         $gasStation->setPreviousGasPrices($previousGasPrices);
+    }
+
+    private function updateGasPrices(array $prices, GasPrice $gasPrice)
+    {
+        $prices[$gasPrice->getGasType()->getId()] = [
+            'id' => $gasPrice->getId(),
+            'date' => $gasPrice->getDate()->format('Y-m-d H:i:s'),
+            'date_format' => $gasPrice->getDate()->format('d/m/Y'),
+            'timestamp' => $gasPrice->getDate()->getTimestamp(),
+            'price' => $gasPrice->getValue(),
+            'gas_type_id' => $gasPrice->getGasType()->getId(),
+            'gas_type_label' => $gasPrice->getGasType()->getLabel(),
+            'gas_type_reference' => $gasPrice->getGasType()->getReference(),
+            'gas_station_id' => $gasPrice->getGasStation()->getId(),
+        ];
+
+        return $prices;
     }
 
     private function downloadInstantGasPrices(): string

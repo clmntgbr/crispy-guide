@@ -3,30 +3,27 @@
 namespace App\Controller\App;
 
 use App\Entity\GasStation;
+use App\Entity\GasType;
 use App\Service\DotEnv;
+use App\Service\GasPriceService;
 use App\Service\GasStationService;
+use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\RouterInterface;
+use Twig\Environment;
 
 class GasStationController extends AbstractController
 {
     /**
      * @Route("/app/gas_stations", name="app_gas_stations")
      */
-    public function gasStations(DotEnv $dotEnv, GasStationService $gasStationService): Response
+    public function gasStations(DotEnv $dotEnv, EntityManagerInterface $em, Environment $twig, RouterInterface $router): Response
     {
-//        $gasStations = $gasStationService->getGasStationForMap(
-//            "2.4016284942626953",
-//            "48.794934627541515",
-//            "7000"
-//        );
-//
-//        die;
-
         return $this->render('app/gas_stations.html.twig', [
             'key_map' => $dotEnv->findByParameter('KEY_MAP'),
         ]);
@@ -36,9 +33,12 @@ class GasStationController extends AbstractController
      * @Route("/app/gas_stations/{id}", name="app_gas_stations_id")
      * @ParamConverter("station", class=GasStation::class, options={"mapping": {"id": "id"}})
      */
-    public function gasStationsId(GasStation $gasStation): Response
+    public function gasStationsId(GasStation $gasStation, EntityManagerInterface $em): Response
     {
-        return $this->render('app/gas_stations_id.html.twig', []);
+        return $this->render('app/gas_stations_id.html.twig', [
+            'gasStation' => $gasStation,
+            'gasTypes' => $em->getRepository(GasType::class)->findGasTypeById(),
+        ]);
     }
 
     /**
@@ -57,5 +57,22 @@ class GasStationController extends AbstractController
         );
 
         return new JsonResponse($gasStations, 200);
+    }
+
+    /**
+     * @Route("/ajax/gas_station_id/gas_prices", name="ajax_gas_station_id_gas_prices")
+     */
+    public function ajaxGasStationIdGasPrices(Request $request, GasPriceService $gasPriceService): Response
+    {
+        if (!$request->isXmlHttpRequest()) {
+            return new JsonResponse("This is not an AJAX request.", 400);
+        }
+
+        $gasPrices = $gasPriceService->getGasPricesByYear(
+            $request->query->get('gasStationId'),
+            $request->query->get('year')
+        );
+
+        return new JsonResponse($gasPrices, 200);
     }
 }

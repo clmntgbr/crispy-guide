@@ -53,16 +53,23 @@ class GasPriceRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
-
-//        $query = sprintf("SELECT s.id
-//                  FROM gas_price s
-//                  WHERE s.gas_station_id = %s AND s.gas_type_id = %s AND s.id != %s
-//                  ORDER BY s.id DESC LIMIT 1;", $gasStationId, $gasType->getId(), $gasPriceId);
-//
-//        $statement = $this->getEntityManager()->getConnection()->prepare($query);
-//        return $statement->executeQuery()->fetchAssociative();
     }
 
+    public function findGasPricesByYear(int $stationId, string $year)
+    {
+        $dateMin = sprintf('%s-01-01 00:00:00', $year);
+        $dateMax = sprintf('%s-12-31 23:59:59', $year);
+
+        $query = "    SELECT p.gas_station_id, p.date, p.gas_type_id, (p.value/1000) value , p.id, (p.date_timestamp*1000) date_timestamp, t.label, t.reference
+                      FROM gas_price p 
+                      INNER JOIN gas_type t ON p.gas_type_id = t.id
+                      WHERE p.gas_station_id = '$stationId' AND (p.date >= '$dateMin' AND  p.date <= '$dateMax')
+                      ORDER BY p.gas_type_id, p.date ASC;"
+        ;
+
+        $statement = $this->getEntityManager()->getConnection()->prepare($query);
+        return $statement->executeQuery()->fetchAllAssociative();
+    }
     public function findLastGasPriceByGasStation(GasStation $gasStation)
     {
         return $this->createQueryBuilder('g')

@@ -12,6 +12,7 @@ use App\Message\CreateGooglePlaceMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Twig\Environment;
 
 class GasStationService
 {
@@ -41,6 +42,9 @@ class GasStationService
     /** @var RouterInterface */
     private $router;
 
+    /** @var Environment */
+    private $twig;
+
     /** @var GasStationStatusHelper */
     private $gasStationStatusHelper;
 
@@ -49,13 +53,15 @@ class GasStationService
         GooglePlaceApi $googlePlaceApi,
         GasStationStatusHelper $gasStationStatusHelper,
         MessageBusInterface $messageBus,
-        RouterInterface $router
+        RouterInterface $router,
+        Environment $twig
     ) {
         $this->em = $em;
         $this->googlePlaceApi = $googlePlaceApi;
         $this->router = $router;
         $this->gasStationStatusHelper = $gasStationStatusHelper;
         $this->messageBus = $messageBus;
+        $this->twig = $twig;
     }
 
     public function update()
@@ -161,7 +167,8 @@ class GasStationService
 
             $address = $gasStation->getAddress();
             $address
-                ->setStreet(sprintf('%s %s', trim($values[7]), trim($values[8])))
+                ->setStreet(sprintf('%s, %s, France', trim($values[7]), trim($values[8])))
+                ->setVicinity(sprintf('%s, %s, France', trim($values[7]), trim($values[8])))
             ;
         }
     }
@@ -185,40 +192,22 @@ class GasStationService
     private function createPopUpContent(array $gasStations)
     {
         foreach ($gasStations as $key => $gasStation) {
-            $gasStationIdRoute = $this->router->generate('app_gas_stations_id', ['id' => $gasStation['gas_station_id']]);
-
-            $content = sprintf("<a href='%s' style='font-family:Raleway, sans-serif;z-index:1;margin-bottom:5px;position: relative;width: auto;height: 200px;display: block;background-position: center;background-size: cover;background-image: url(%s%s);'></a>", $gasStationIdRoute, $gasStation['preview_path'], $gasStation['preview_name']);
-
-            $lastGasPrices = json_decode($gasStation['last_gas_prices'], true);
-            $previousGasPrices = json_decode($gasStation['previous_gas_prices'], true);
-
-            $gasTypes = $this->em->getRepository(GasType::class)->findAll();
-
-            /** @var GasType $gasType */
-            foreach ($gasTypes as $gasType) {
-                if (array_key_exists($gasType->getId(), $lastGasPrices)) {
-                    if (!array_key_exists($gasType->getId(), $previousGasPrices)) {
-                        $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_green');
-                        continue;
-                    }
-
-                    if ($lastGasPrices[$gasType->getId()]['price'] > $previousGasPrices[$gasType->getId()]['price']) {
-                        $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_red');
-                        continue;
-                    }
-
-                    if ($lastGasPrices[$gasType->getId()]['price'] == $previousGasPrices[$gasType->getId()]['price']) {
-                        $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_green');
-                        continue;
-                    }
-
-                    $content .= $this->createLastGasPricesHtmlTemplate($gasStation, $gasType, $lastGasPrices, 'last_gas_prices_color_orange');
-                }
-            }
-
-            $content .= sprintf("<a href='%s' style='font-family:Raleway-Bold, sans-serif;font-size: 15px;width: auto;border-radius: 0 0 8px 8px;text-align: center;display: block;margin-top: 10px;background-color: #4f9c49;color: #fff;padding: 13px 0;'>Accèder à la fiche</a>", $gasStationIdRoute);
-
-            $gasStations[$key]['content'] = $content;
+//            dump($gasStation);
+//            die;
+            $gasStations[$key]['content'] = $this->twig->render('app/gas_station_popup.html.twig', [
+                'gas_station_id' => $gasStation['gas_station_id'],
+                'gas_station_id_route' => $this->router->generate('app_gas_stations_id', ['id' => $gasStation['gas_station_id']]),
+                'last_gas_prices' => json_decode($gasStation['last_gas_prices'], true),
+                'previous_gas_prices' => json_decode($gasStation['previous_gas_prices'], true),
+                'preview_path' => $gasStation['preview_path'],
+                'preview_name' => $gasStation['preview_name'],
+                'gas_services' => $gasStation['gas_services'],
+                'gas_station_name' => $gasStation['gas_station_name'],
+                'gas_station_company' => $gasStation['company'],
+                'gas_station_vicinity' => $gasStation['vicinity'],
+                'gas_station_google_place_id' => $gasStation['google_place_id'],
+                'gas_station_google_place_url' => $gasStation['url'],
+            ]);
         }
 
         return $gasStations;
