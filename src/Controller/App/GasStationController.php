@@ -42,6 +42,7 @@ class GasStationController extends AbstractController
             'gas_types' => $em->getRepository(GasType::class)->findGasTypeById(),
             'gas_prices_years' => GasPriceService::getGasPricesYears(),
             'year_now' => (new \DateTime('now'))->format('Y'),
+            'gas_station_google_map_url' => sprintf("https://maps.google.com/?q=%s", $gasStation->getAddress()->getVicinity()),
         ]);
     }
 

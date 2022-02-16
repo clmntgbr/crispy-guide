@@ -12,8 +12,8 @@
     <header>
         <img src="{{ asset(gasStation.preview.path) }}{{ asset(gasStation.preview.name) }}" alt="{{ gasStation.name }}"/>
         <section class="presentation container">
-            <h1>{{ gasStation.name }}</h1><br>
-            <h2><a {% if gasStation.googlePlace is not null and gasStation.googlePlace.url %}href="{{ gasStation.googlePlace.url }}" target="_blank" data-tooltip="Open in Google Map" data-position="bottom center" data-inverted=""{% endif %}>{{ gasStation.address.vicinity }}</a></h2>
+            <h1>{{ gasStation.name }} - {{ gasStation.company }}</h1><br>
+            <h2><a href="{% if gasStation.googlePlace is not null and gasStation.googlePlace.url %}{{ gasStation.googlePlace.url }}{% else %}{{ gas_station_google_map_url }}{% endif %}" target="_blank" data-tooltip="Open in Google Map" data-position="bottom center" data-inverted="">{{ gasStation.address.vicinity }}</a></h2>
         </section>
     </header>
 
@@ -90,6 +90,8 @@
             maxZoom: 20
         }).addTo(map)
 
+        map.locate()
+
         var group = L.featureGroup().addTo(map)
 
         var normal = L.icon({
@@ -101,6 +103,12 @@
         })
 
         L.marker([parseFloat({{ gasStation.address.latitude }}), parseFloat({{ gasStation.address.longitude }})], {icon: normal}).addTo(group)
+
+        map.on('locationfound', function (e) {
+            console.log('locationfound')
+            var radius = e.accuracy;
+            L.marker(e.latlng).addTo(map)
+        })
 
         function loadCharts(element, gasType) {
             Highcharts.setOptions({
@@ -184,6 +192,13 @@
                     var data = []
                     var gasTypes = {}
 
+                    $('.charts').remove()
+
+                    if (elements.length === 0) {
+                        $('.chart_prices').append("<div class='charts chart_prices_none'><p>There is no datas for this year.</p> </div>")
+                        return false;
+                    }
+
                     $.each(elements, function (index, price) {
                         if (data.hasOwnProperty(price.gas_type_id)) {
                             data[price.gas_type_id].push([parseFloat(price.date_timestamp), parseFloat(price.value)])
@@ -197,7 +212,7 @@
                     })
 
                     data.forEach(function(item, index){
-                        $('.chart_prices').append("<div id='" + gasTypes[index]['reference'] + "_chart'></div>")
+                        $('.chart_prices').append("<div id='" + gasTypes[index]['reference'] + "_chart' class='charts'></div>")
                         loadCharts(item, gasTypes[index])
                     })
                 }
