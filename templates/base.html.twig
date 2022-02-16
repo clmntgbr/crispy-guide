@@ -5,6 +5,9 @@
     <base href="/">
     <title>{% block title %}{% endblock %}</title>
 
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('semantic/semantic.min.css') }}"/>
+
     <script async defer src="https://kit.fontawesome.com/cd91c1afff.js"></script>
 
     {{ encore_entry_link_tags('app') }}
@@ -23,6 +26,7 @@
 </footer>
 
 <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js"></script>
+<script type="application/javascript" src="{{ asset('semantic/semantic.min.js') }}"></script>
 
 {% block javascripts %}
 {% endblock %}

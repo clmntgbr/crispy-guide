@@ -6,10 +6,6 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"/>
-    <style>
-
-
-    </style>
 {% endblock %}
 
 {% block body %}
@@ -84,8 +80,6 @@
         var markers = {}
 
         map = L.map('map').setView([defaultCoordinate.latitude, defaultCoordinate.longitude], 12)
-
-        map.scrollWheelZoom.disable()
 
         L.control.scale().addTo(map)
 

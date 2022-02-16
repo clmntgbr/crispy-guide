@@ -246,6 +246,14 @@ class GasPriceService
         $gasStation->setPreviousGasPrices($previousGasPrices);
     }
 
+    public static function getGasPricesYears()
+    {
+        $year = (new \DateTime('now'))->format('Y');
+        for ($i=2007;$i<=$year;$i++) {
+            yield $i;
+        }
+    }
+
     private function updateGasPrices(array $prices, GasPrice $gasPrice)
     {
         $prices[$gasPrice->getGasType()->getId()] = [

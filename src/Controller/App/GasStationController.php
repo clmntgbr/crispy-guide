@@ -37,7 +37,11 @@ class GasStationController extends AbstractController
     {
         return $this->render('app/gas_stations_id.html.twig', [
             'gasStation' => $gasStation,
-            'gasTypes' => $em->getRepository(GasType::class)->findGasTypeById(),
+            'last_gas_prices' => $gasStation->getLastGasPrices(),
+            'previous_gas_prices' => $gasStation->getPreviousGasPrices(),
+            'gas_types' => $em->getRepository(GasType::class)->findGasTypeById(),
+            'gas_prices_years' => GasPriceService::getGasPricesYears(),
+            'year_now' => (new \DateTime('now'))->format('Y'),
         ]);
     }
 

@@ -1,16 +1,108 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}
+    {{ gasStation.name }} - {{ gasStation.address.vicinity }}
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"/>
+{% endblock %}
+
 {% block body %}
-    <div class="col-lg-12 chart_prices">
-    </div>
+    <header>
+        <img src="{{ asset(gasStation.preview.path) }}{{ asset(gasStation.preview.name) }}" alt="{{ gasStation.name }}"/>
+        <section class="presentation container">
+            <h1>{{ gasStation.name }}</h1><br>
+            <h2><a {% if gasStation.googlePlace is not null and gasStation.googlePlace.url %}href="{{ gasStation.googlePlace.url }}" target="_blank" data-tooltip="Open in Google Map" data-position="bottom center" data-inverted=""{% endif %}>{{ gasStation.address.vicinity }}</a></h2>
+        </section>
+    </header>
+
+    <section class="information container">
+        <div class="row last_prices">
+            {% for gas_type in gas_types %}
+                <div class="col-lg-4 col-sm-6 col-xs-12 types">
+                    {% if last_gas_prices[gas_type.id] is defined %}
+                        {% set gas_price = last_gas_prices[gas_type.id] %}
+                        {% if previous_gas_prices[gas_price.gas_type_id] is defined %}
+                            {% if gas_price['price'] > previous_gas_prices[gas_price.gas_type_id]['price'] %}
+                                {% set gas_price_color = 'color_red' %}
+                            {% elseif gas_price['price'] <= previous_gas_prices[gas_price.gas_type_id]['price'] %}
+                                {% set gas_price_color = 'color_orange' %}
+                            {% else %}
+                                {% set gas_price_color = 'color_green' %}
+                            {% endif %}
+                        {% else %}
+                            {% set gas_price_color = 'color_green' %}
+                        {% endif %}
+
+                        <div class="item {{ gas_type.reference }} last_gas_prices_{{ gas_price_color }}">
+                            <a href="" class="name">{{ gas_type.label }}</a>
+                            <p class="price">{{ gas_price.price/1000 }}</p>
+                            <p class="date">Dernière MAJ le {{ gas_price.date|date('d/m/Y') }}</p>
+                        </div>
+                    {% else %}
+                        <div class="item {{ gas_type.reference }}">
+                            <a href="" class="name">{{ gas_type.label }}</a>
+                            <p class="price small">NaN</p>
+                            <p class="date">Pas de MAJ</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="map">
+        <div id="map" class="gas_station"></div>
+    </section>
+
+    <section class="prices container">
+        <div class="row gas_prices">
+            <div class="ui form" id="gas_year">
+                <div class="field">
+                    <select id="gas_years" class="ui search dropdown">
+                        {% for gas_price_year in gas_prices_years %}
+                            <option value="{{ gas_price_year }}" {% if gas_price_year == year_now %}selected{% endif %}>{{ gas_price_year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-12 chart_prices"></div>
+        </div>
+    </section>
+
 {% endblock %}
 
 {% block javascripts %}
     <script type="application/javascript" src="https://code.highcharts.com/highcharts.js"></script>
+    <script type="application/javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
 
-    <script>
+    <script  type="application/javascript">
+        const defaultCoordinate = {'latitude': 48.855680, 'longitude': 2.347045}
+        var markers = {}
+
+        map = L.map('map').setView([parseFloat({{ gasStation.address.latitude }}), parseFloat({{ gasStation.address.longitude }})], 12)
+        map.scrollWheelZoom.disable()
+        L.control.scale().addTo(map)
+
+        L.tileLayer('http://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+            minZoom: 1,
+            maxZoom: 20
+        }).addTo(map)
+
+        var group = L.featureGroup().addTo(map)
+
+        var normal = L.icon({
+            iconUrl: '{{ asset('img/marker/normal.png') }}',
+        })
+
+        var user = L.icon({
+            iconUrl: '{{ asset('img/marker/user.png') }}',
+        })
+
+        L.marker([parseFloat({{ gasStation.address.latitude }}), parseFloat({{ gasStation.address.longitude }})], {icon: normal}).addTo(group)
+
         function loadCharts(element, gasType) {
-            console.log(gasType)
             Highcharts.setOptions({
                 lang: {
                     shortMonths: [
@@ -111,6 +203,13 @@
                 }
             })
         }
+
+        $('#gas_year .ui.dropdown').dropdown({
+            action: 'activate',
+            onChange: function (value) {
+                getGasPrices(value)
+            },
+        })
 
         getGasPrices(null)
 

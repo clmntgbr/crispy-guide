@@ -192,8 +192,6 @@ class GasStationService
     private function createPopUpContent(array $gasStations)
     {
         foreach ($gasStations as $key => $gasStation) {
-//            dump($gasStation);
-//            die;
             $gasStations[$key]['content'] = $this->twig->render('app/gas_station_popup.html.twig', [
                 'gas_station_id' => $gasStation['gas_station_id'],
                 'gas_station_id_route' => $this->router->generate('app_gas_stations_id', ['id' => $gasStation['gas_station_id']]),
@@ -207,6 +205,7 @@ class GasStationService
                 'gas_station_vicinity' => $gasStation['vicinity'],
                 'gas_station_google_place_id' => $gasStation['google_place_id'],
                 'gas_station_google_place_url' => $gasStation['url'],
+                'gas_station_google_map_url' => sprintf("https://maps.google.com/?q=%s", $gasStation['vicinity']),
             ]);
         }
 
