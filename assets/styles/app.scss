@@ -75,7 +75,16 @@ html, body {
     }
 
     #map {
-        width: 100%;
+        width: calc(100% - 400px);
+        right: 0;
+        height: 100%;
+        display: inline-block;
+        position: absolute;
+    }
+
+    #filters {
+        width: 400px;
+        left: 0;
         height: 100%;
         display: inline-block;
         position: absolute;

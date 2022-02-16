@@ -9,6 +9,38 @@
 {% endblock %}
 
 {% block body %}
+    <div id="filters">
+        <div id="panel">
+            <div class="menu-list">
+
+                <div class="ui form" id="type">
+                    <div class="field">
+                        <label for="gas_types">Types de carburants</label>
+                        <select multiple="multiple" id="gas_types" class="ui search dropdown">
+                            {% for gas_type in gas_types %}
+                                <option value="{{ gas_type.id }}">{{ gas_type.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+{#                <div class="ui form" id="service">#}
+{#                    <div class="field">#}
+{#                        <label for="services">Liste des services</label>#}
+{#                        <select multiple="multiple" id="services" class="ui search dropdown">#}
+{#                            {% for service in gas_services %}#}
+{#                                <option value="{{ service.id }}">{{ service.name }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{#                    </div>#}
+{#                </div>#}
+
+                <div class="ui form" id="reset">
+                    <button class="ui google plus button">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="map" class="gas_stations"></div>
 {% endblock %}
 
@@ -30,7 +62,8 @@
                 data: {
                     'latitude': latitude,
                     'longitude': longitude,
-                    'radius': radius
+                    'radius': radius,
+                    'filters': filters
                 },
                 success: function (elements, statut) {
 
@@ -76,10 +109,11 @@
             })
         }
 
-        const defaultCoordinate = {'latitude': 48.855680, 'longitude': 2.347045}
+        var coordinate = {'latitude': 48.855680, 'longitude': 2.347045, 'radius': 5000}
         var markers = {}
+        var filters = {}
 
-        map = L.map('map').setView([defaultCoordinate.latitude, defaultCoordinate.longitude], 12)
+        map = L.map('map').setView([coordinate.latitude, coordinate.longitude], 12)
 
         L.control.scale().addTo(map)
 
@@ -119,19 +153,19 @@
             var radius = mapBoundNorthEast.distanceTo(map.getCenter())
             radius = radius - (radius*0.45)
 
+            coordinate.longitude = e.target.getCenter().lng
+            coordinate.latitude = e.target.getCenter().lat
+            coordinate.radius = radius
+
             getGasStations(e.target.getCenter().lat, e.target.getCenter().lng, radius)
         })
 
-        map.on('locationerror', function (e) {
-            console.log('locationerror')
-            var mapBoundNorthEast = map.getBounds().getNorthEast()
-            mapBoundNorthEast.lng = e.target.getCenter().lng
-            var radius = mapBoundNorthEast.distanceTo(map.getCenter())
-            radius = radius - (radius*0.45)
-
-            map.setZoom(13)
-
-            getGasStations(defaultCoordinate.latitude, defaultCoordinate.longitude, radius)
+        $('#gas_types').dropdown({
+            action: 'activate',
+            onChange: function (values, text, items) {
+                filters = {'gas_types': values}
+                getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
+            }
         })
     </script>
 {% endblock %}

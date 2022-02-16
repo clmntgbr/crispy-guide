@@ -26,6 +26,7 @@ class GasStationController extends AbstractController
     {
         return $this->render('app/gas_stations.html.twig', [
             'key_map' => $dotEnv->findByParameter('KEY_MAP'),
+            'gas_types' => $em->getRepository(GasType::class)->findGasTypeById(),
         ]);
     }
 
@@ -55,10 +56,14 @@ class GasStationController extends AbstractController
             return new JsonResponse("This is not an AJAX request.", 400);
         }
 
+        dump($request->query->get('filters'));
+        die;
+
         $gasStations = $gasStationService->getGasStationForMap(
             $request->query->get('longitude'),
             $request->query->get('latitude'),
-            $request->query->get('radius')
+            $request->query->get('radius'),
+            $request->query->get('filters')
         );
 
         return new JsonResponse($gasStations, 200);
