@@ -56,9 +56,6 @@ class GasStationController extends AbstractController
             return new JsonResponse("This is not an AJAX request.", 400);
         }
 
-        dump($request->query->get('filters'));
-        die;
-
         $gasStations = $gasStationService->getGasStationForMap(
             $request->query->get('longitude'),
             $request->query->get('latitude'),

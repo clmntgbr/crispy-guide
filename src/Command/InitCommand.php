@@ -2,12 +2,7 @@
 
 namespace App\Command;
 
-use App\Entity\GasPrice;
-use App\Entity\GasStation;
-use App\Entity\GasType;
-use App\Entity\Media;
 use App\Service\GasPriceService;
-use App\Service\GasStationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -54,59 +49,59 @@ class InitCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-//        $application = new Application($this->kernel);
-//        $application->setAutoExit(false);
-//
-//        $io->title('doctrine:database:drop');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:database:drop',
-//            '--force' => '--force',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('doctrine:database:create');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:database:create',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('doctrine:migrations:migrate');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:migrations:migrate',
-//            '--no-interaction' => '--no-interaction',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('doctrine:fixtures:load');
-//
-//        $input = new ArrayInput([
-//            'command' => 'doctrine:fixtures:load',
-//            '--no-interaction' => '--no-interaction',
-//        ]);
-//
-//        $output = new BufferedOutput();
-//        $application->run($input, $output);
-//
-//        $io->title('Init Sql');
-//
-//        $finder = new Finder();
-//        $finder->in(self::INIT_FILE_PATH);
-//        $finder->name(self::INIT_FILE_NAME);
-//
-//        foreach( $finder as $file ){
-//            $content = $file->getContents();
-//            $stmt = $this->em->getConnection()->prepare($content);
-//            $stmt->executeQuery();
-//        }
+        $application = new Application($this->kernel);
+        $application->setAutoExit(false);
+
+        $io->title('doctrine:database:drop');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:database:drop',
+            '--force' => '--force',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('doctrine:database:create');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:database:create',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('doctrine:migrations:migrate');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:migrations:migrate',
+            '--no-interaction' => '--no-interaction',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('doctrine:fixtures:load');
+
+        $input = new ArrayInput([
+            'command' => 'doctrine:fixtures:load',
+            '--no-interaction' => '--no-interaction',
+        ]);
+
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+
+        $io->title('Init Sql');
+
+        $finder = new Finder();
+        $finder->in(self::INIT_FILE_PATH);
+        $finder->name(self::INIT_FILE_NAME);
+
+        foreach( $finder as $file ){
+            $content = $file->getContents();
+            $stmt = $this->em->getConnection()->prepare($content);
+            $stmt->executeQuery();
+        }
 
 //        $io->title('Init Gas Prices');
 //
@@ -169,21 +164,6 @@ class InitCommand extends Command
 //        $io->progressFinish();
 
 
-        $gasStations = $this->em->getRepository(GasStation::class)->findAll();
-
-        foreach ($gasStations as $gasStation) {
-            $address = $gasStation->getAddress();
-
-            $address->setVicinity(
-                sprintf('%s, %s',
-                    $address->getStreet(),
-                    $address->getCountry()
-                )
-            );
-
-            $this->em->persist($address);
-        }
-        $this->em->flush();
 
         return Command::SUCCESS;
     }

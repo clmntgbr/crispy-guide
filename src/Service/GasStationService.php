@@ -177,14 +177,15 @@ class GasStationService
      * @param string|null $longitude
      * @param string|null $latitude
      * @param string|null $radius
+     * @param array|null $filters
      */
-    public function getGasStationForMap($longitude, $latitude, $radius)
+    public function getGasStationForMap($longitude, $latitude, $radius, $filters)
     {
         if (is_null($longitude) || is_null($latitude) || is_null($radius)) {
             throw new \Exception('Parameters are missing.');
         }
 
-        $gasStations = $this->em->getRepository(GasStation::class)->getGasStationsForMap($longitude, $latitude, $radius);
+        $gasStations = $this->em->getRepository(GasStation::class)->getGasStationsForMap($longitude, $latitude, $radius, $filters);
 
         return $this->createPopUpContent($gasStations);
     }
