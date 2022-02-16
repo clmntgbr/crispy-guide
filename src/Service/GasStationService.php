@@ -177,7 +177,6 @@ class GasStationService
      * @param string|null $longitude
      * @param string|null $latitude
      * @param string|null $radius
-     * @param array|null $filters
      */
     public function getGasStationForMap($longitude, $latitude, $radius, $filters)
     {

@@ -13,7 +13,7 @@
         <div id="panel">
             <div class="menu-list">
 
-                <div class="ui form" id="type">
+                <div class="ui form">
                     <div class="field">
                         <label for="gas_types">Types de carburants</label>
                         <select multiple="multiple" id="gas_types" class="ui search dropdown">
@@ -24,16 +24,16 @@
                     </div>
                 </div>
 
-{#                <div class="ui form" id="service">#}
-{#                    <div class="field">#}
-{#                        <label for="services">Liste des services</label>#}
-{#                        <select multiple="multiple" id="services" class="ui search dropdown">#}
-{#                            {% for service in gas_services %}#}
-{#                                <option value="{{ service.id }}">{{ service.name }}</option>#}
-{#                            {% endfor %}#}
-{#                        </select>#}
-{#                    </div>#}
-{#                </div>#}
+                <div class="ui form">
+                    <div class="field">
+                        <label for="gas_services">Types de services</label>
+                        <select multiple="multiple" id="gas_services" class="ui search dropdown">
+                            {% for gas_service in gas_services %}
+                                <option value="{{ gas_service.label }}">{{ gas_service.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
 
                 <div class="ui form" id="reset">
                     <button class="ui google plus button">Reset</button>
@@ -47,6 +47,10 @@
 {% block javascripts %}
     <script type="application/javascript" src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
     <script  type="application/javascript">
+
+        var filters = {'gas_services': null, 'gas_types': null}
+        var coordinate = {'latitude': 48.855680, 'longitude': 2.347045, 'radius': 5000}
+        var markers = {}
 
         function closeGasStation () {
             $('.gas_station_popup').css('display', 'none')
@@ -109,10 +113,6 @@
             })
         }
 
-        var coordinate = {'latitude': 48.855680, 'longitude': 2.347045, 'radius': 5000}
-        var markers = {}
-        var filters = {}
-
         map = L.map('map').setView([coordinate.latitude, coordinate.longitude], 12)
 
         L.control.scale().addTo(map)
@@ -163,7 +163,15 @@
         $('#gas_types').dropdown({
             action: 'activate',
             onChange: function (values, text, items) {
-                filters = {'gas_types': values}
+                filters.gas_types = values
+                getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
+            }
+        })
+
+        $('#gas_services').dropdown({
+            action: 'activate',
+            onChange: function (values, text, items) {
+                filters.gas_services = values
                 getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
             }
         })

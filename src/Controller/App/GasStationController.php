@@ -2,6 +2,7 @@
 
 namespace App\Controller\App;
 
+use App\Entity\GasService;
 use App\Entity\GasStation;
 use App\Entity\GasType;
 use App\Service\DotEnv;
@@ -27,6 +28,7 @@ class GasStationController extends AbstractController
         return $this->render('app/gas_stations.html.twig', [
             'key_map' => $dotEnv->findByParameter('KEY_MAP'),
             'gas_types' => $em->getRepository(GasType::class)->findGasTypeById(),
+            'gas_services' => $em->getRepository(GasService::class)->findGasServiceById(),
         ]);
     }
 

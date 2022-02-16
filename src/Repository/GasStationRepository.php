@@ -56,9 +56,41 @@ class GasStationRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
-    public function getGasStationsForMap(string $longitude, string $latitude, string $radius)
+    private function createGasTypesFilter($filters)
     {
+        $query = "";
+        if (array_key_exists('gas_types', $filters ?? [])) {
+            $query = " AND (";
+            foreach ($filters['gas_types'] as $gas_type) {
+                $query .= "JSON_KEYS(s.last_gas_prices) LIKE '%" . $gas_type . "%' OR ";
+            }
+            $query = mb_substr($query, 0, -4);
+            $query .= ")";
+        }
+        return $query;
+    }
+
+    private function createGasServicesFilter($filters)
+    {
+        $query = "";
+        if (array_key_exists('gas_services', $filters ?? [])) {
+            $query = " AND (";
+            foreach ($filters['gas_services'] as $gas_service) {
+                $query .= "`gas_services` LIKE '%" . $gas_service . "%' OR ";
+            }
+            $query = mb_substr($query, 0, -4);
+            $query .= ")";
+        }
+        return $query;
+    }
+
+    public function getGasStationsForMap(string $longitude, string $latitude, string $radius, $filters)
+    {
+        $gasTypesFilter = $this->createGasTypesFilter($filters);
+        $gasServicesFilter = $this->createGasServicesFilter($filters);
+
         $query = "  SELECT s.id as gas_station_id, m.path as preview_path, m.name as preview_name, s.address_id, s.company, 
+                    JSON_KEYS(s.last_gas_prices) as gas_types, 
                     s.name as gas_station_name, s.last_gas_prices, s.previous_gas_prices, s.gas_station_status_id, s.google_place_id, a.vicinity,  a.longitude,  a.latitude,
                     p.url,
                     (SQRT(POW(69.1 * (a.latitude - $latitude), 2) + POW(69.1 * ($longitude - a.longitude) * COS(a.latitude / 57.3), 2))*1000) as distance,
@@ -70,8 +102,8 @@ class GasStationRepository extends ServiceEntityRepository
                     INNER JOIN address a ON s.address_id = a.id
                     INNER JOIN media m ON s.preview_id = m.id
                     LEFT JOIN google_place p ON p.id = s.google_place_id
-                    WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL
-                    HAVING `distance` < $radius
+                    WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL $gasTypesFilter
+                    HAVING `distance` < $radius $gasServicesFilter
                     ORDER BY `distance` ASC LIMIT 300;
         ";
 
