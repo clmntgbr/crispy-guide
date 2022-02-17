@@ -37,7 +37,7 @@
 
                         <div class="item {{ gas_type.reference }} last_gas_prices_{{ gas_price_color }}">
                             <a href="" class="name">{{ gas_type.label }}</a>
-                            <p class="price">{{ gas_price.price/1000 }}</p>
+                            <p class="price">{{ gas_price.price/1000 }} €</p>
                             <p class="date">Dernière MAJ le {{ gas_price.date|date('d/m/Y') }}</p>
                         </div>
                     {% else %}
