@@ -128,7 +128,7 @@ class GasStationRepository extends ServiceEntityRepository
                     s.name as gas_station_name, s.last_gas_prices, s.previous_gas_prices, s.gas_station_status_id, s.google_place_id, a.vicinity,  a.longitude,  a.latitude,
                     p.url,
                     (SQRT(POW(69.1 * (a.latitude - $latitude), 2) + POW(69.1 * ($longitude - a.longitude) * COS(a.latitude / 57.3), 2))*1000) as distance,
-                    (SELECT GROUP_CONCAT(gs.label SEPARATOR '<br>')
+                    (SELECT GROUP_CONCAT(gs.label SEPARATOR ', ')
                     FROM gas_stations_services gss
                     INNER JOIN gas_service gs ON gss.gas_service_id = gs.id
                     AND gss.gas_station_id = s.id) as gas_services

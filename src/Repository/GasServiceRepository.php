@@ -23,7 +23,7 @@ class GasServiceRepository extends ServiceEntityRepository
     {
         $query = $this->createQueryBuilder('t')
             ->select('t.id, t.reference, t.label')
-            ->orderBy('t.id', 'ASC')
+            ->orderBy('t.reference', 'ASC')
             ->indexBy('t', 't.id')
             ->getQuery();
 
