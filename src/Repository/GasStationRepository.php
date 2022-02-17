@@ -15,6 +15,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class GasStationRepository extends ServiceEntityRepository
 {
+    private $isRadiusNotUsed;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, GasStation::class);
@@ -59,7 +61,7 @@ class GasStationRepository extends ServiceEntityRepository
     private function createGasTypesFilter($filters)
     {
         $query = "";
-        if (array_key_exists('gas_types', $filters ?? [])) {
+        if (array_key_exists('gas_types', $filters ?? []) && $filters['gas_types'] !== "") {
             $query = " AND (";
             foreach ($filters['gas_types'] as $gas_type) {
                 $query .= "JSON_KEYS(s.last_gas_prices) LIKE '%" . $gas_type . "%' OR ";
@@ -73,7 +75,7 @@ class GasStationRepository extends ServiceEntityRepository
     private function createGasServicesFilter($filters)
     {
         $query = "";
-        if (array_key_exists('gas_services', $filters ?? [])) {
+        if (array_key_exists('gas_services', $filters ?? []) && $filters['gas_services'] !== "") {
             $query = " AND (";
             foreach ($filters['gas_services'] as $gas_service) {
                 $query .= "`gas_services` LIKE '%" . $gas_service . "%' OR ";
@@ -84,10 +86,42 @@ class GasStationRepository extends ServiceEntityRepository
         return $query;
     }
 
+    private function createGasStationsCitiesFilter($filters)
+    {
+        $query = "";
+        if (array_key_exists('gas_stations_cities', $filters ?? []) && $filters['gas_stations_cities'] !== "") {
+            $cities = implode(', ', $filters['gas_stations_cities']);
+            $query = " AND a.postal_code IN ($cities)";
+            $this->isRadiusNotUsed = true;
+        }
+
+        return $query;
+    }
+
+    private function createGasStationsDepartmentsFilter($filters)
+    {
+        $query = "";
+        if (array_key_exists('gas_stations_departments', $filters ?? []) && $filters['gas_stations_departments'] !== "") {
+            $departments = implode(', ', $filters['gas_stations_departments']);
+            $query = " AND SUBSTRING(a.postal_code, 1, 2) IN ($departments)";
+            $this->isRadiusNotUsed = true;
+        }
+
+        return $query;
+    }
+
     public function getGasStationsForMap(string $longitude, string $latitude, string $radius, $filters)
     {
+        $this->isRadiusNotUsed = false;
+
         $gasTypesFilter = $this->createGasTypesFilter($filters);
         $gasServicesFilter = $this->createGasServicesFilter($filters);
+        $gasStationsCitiesFilter = $this->createGasStationsCitiesFilter($filters);
+        $gasStationsDepartmentsFilter = $this->createGasStationsDepartmentsFilter($filters);
+
+        if ($this->isRadiusNotUsed) {
+            $radius = 100000000000000000;
+        }
 
         $query = "  SELECT s.id as gas_station_id, m.path as preview_path, m.name as preview_name, s.address_id, s.company, 
                     JSON_KEYS(s.last_gas_prices) as gas_types, 
@@ -102,7 +136,7 @@ class GasStationRepository extends ServiceEntityRepository
                     INNER JOIN address a ON s.address_id = a.id
                     INNER JOIN media m ON s.preview_id = m.id
                     LEFT JOIN google_place p ON p.id = s.google_place_id
-                    WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL $gasTypesFilter
+                    WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL $gasTypesFilter $gasStationsCitiesFilter $gasStationsDepartmentsFilter
                     HAVING `distance` < $radius $gasServicesFilter
                     ORDER BY `distance` ASC LIMIT 300;
         ";

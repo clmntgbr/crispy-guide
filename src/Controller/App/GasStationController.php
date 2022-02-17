@@ -2,9 +2,11 @@
 
 namespace App\Controller\App;
 
+use App\Entity\Address;
 use App\Entity\GasService;
 use App\Entity\GasStation;
 use App\Entity\GasType;
+use App\Service\AddressService;
 use App\Service\DotEnv;
 use App\Service\GasPriceService;
 use App\Service\GasStationService;
@@ -15,20 +17,20 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\RouterInterface;
-use Twig\Environment;
 
 class GasStationController extends AbstractController
 {
     /**
      * @Route("/app/gas_stations", name="app_gas_stations")
      */
-    public function gasStations(DotEnv $dotEnv, EntityManagerInterface $em, Environment $twig, RouterInterface $router): Response
+    public function gasStations(DotEnv $dotEnv, EntityManagerInterface $em, AddressService $addressService): Response
     {
         return $this->render('app/gas_stations.html.twig', [
             'key_map' => $dotEnv->findByParameter('KEY_MAP'),
             'gas_types' => $em->getRepository(GasType::class)->findGasTypeById(),
             'gas_services' => $em->getRepository(GasService::class)->findGasServiceById(),
+            'gas_stations_cities' => $em->getRepository(Address::class)->findCities(),
+            'gas_stations_departments' => $addressService->getDepartments(),
         ]);
     }
 
