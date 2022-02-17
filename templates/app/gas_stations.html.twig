@@ -78,6 +78,18 @@
             $('.gas_station_popup').css('display', 'none')
         }
 
+        function createLowPrices(lowPrices, gasTypeId, lastGasPrice, element) {
+            if (lowPrices.hasOwnProperty(gasTypeId)) {
+                if (lastGasPrice['price'] <= lowPrices[gasTypeId]['gasPriceValue']) {
+                    lowPrices[gasTypeId] = {'gasStationId' : element.gas_station_id, 'gasPriceId' : lastGasPrice.id, 'gasPriceValue': lastGasPrice.price}
+                }
+            } else {
+                lowPrices[gasTypeId] = {'gasStationId' : element.gas_station_id, 'gasPriceId' : lastGasPrice.id, 'gasPriceValue': lastGasPrice.price}
+            }
+
+            return lowPrices;
+        }
+
         function getGasStations(latitude, longitude, radius) {
             var lowPrices = {}
 
@@ -86,9 +98,9 @@
                 type: 'GET',
                 async: true,
                 data: {
-                    'latitude': latitude,
-                    'longitude': longitude,
-                    'radius': radius,
+                    'latitude': coordinate.latitude,
+                    'longitude': coordinate.longitude,
+                    'radius': coordinate.radius,
                     'filters': filters
                 },
                 success: function (elements, statut) {
@@ -104,14 +116,16 @@
                         closeGasStation()
 
                         $.each(lastGasPrices, function(index, lastGasPrice) {
+
                             var gasTypeId = lastGasPrice.gas_type_id
-                            if (lowPrices.hasOwnProperty(gasTypeId)) {
-                                if (lastGasPrice['price'] <= lowPrices[gasTypeId]['gasPriceValue']) {
-                                    lowPrices[gasTypeId] = {'gasStationId' : element.gas_station_id, 'gasPriceId' : lastGasPrice.id, 'gasPriceValue': lastGasPrice.price}
+
+                            if (filters['gas_types'] !== null && filters['gas_types'].length !== 0) {
+                                if (false === filters['gas_types'].includes(gasTypeId.toString())) {
+                                    return true
                                 }
-                            } else {
-                                lowPrices[gasTypeId] = {'gasStationId' : element.gas_station_id, 'gasPriceId' : lastGasPrice.id, 'gasPriceValue': lastGasPrice.price}
                             }
+
+                            lowPrices = createLowPrices(lowPrices, gasTypeId, lastGasPrice, element)
                         })
 
                         markers[element.gas_station_id] = L.marker([parseFloat(element.latitude), parseFloat(element.longitude)], {icon: normal}).addTo(group).on('click', function(e) {
@@ -179,14 +193,14 @@
             coordinate.latitude = e.target.getCenter().lat
             coordinate.radius = radius
 
-            getGasStations(e.target.getCenter().lat, e.target.getCenter().lng, radius)
+            getGasStations()
         })
 
         $('#gas_types').dropdown({
             action: 'activate',
             onChange: function (values, text, items) {
                 filters.gas_types = values
-                getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
+                getGasStations()
             }
         })
 
@@ -194,7 +208,7 @@
             action: 'activate',
             onChange: function (values, text, items) {
                 filters.gas_services = values
-                getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
+                getGasStations()
             }
         })
 
@@ -202,7 +216,7 @@
             action: 'activate',
             onChange: function (values, text, items) {
                 filters.gas_stations_cities = values
-                getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
+                getGasStations()
             }
         })
 
@@ -210,7 +224,7 @@
             action: 'activate',
             onChange: function (values, text, items) {
                 filters.gas_stations_departments = values
-                getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
+                getGasStations()
             }
         })
 
@@ -220,7 +234,7 @@
             $('#gas_stations_cities').dropdown('clear')
             $('#gas_stations_departments').dropdown('clear')
             filters = {'gas_services': null, 'gas_types': null, 'gas_stations_cities': null, 'gas_stations_departments': null}
-            getGasStations(coordinate.latitude, coordinate.longitude, coordinate.radius)
+            getGasStations()
         })
     </script>
 {% endblock %}

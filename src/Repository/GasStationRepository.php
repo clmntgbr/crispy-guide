@@ -135,8 +135,9 @@ class GasStationRepository extends ServiceEntityRepository
                     FROM gas_station s
                     INNER JOIN address a ON s.address_id = a.id
                     INNER JOIN media m ON s.preview_id = m.id
+                    INNER JOIN gas_station_status gs ON s.gas_station_status_id = gs.id
                     LEFT JOIN google_place p ON p.id = s.google_place_id
-                    WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND s.closed_at IS NULL $gasTypesFilter $gasStationsCitiesFilter $gasStationsDepartmentsFilter
+                    WHERE a.longitude IS NOT NULL AND a.latitude IS NOT NULL AND gs.reference != 'closed' $gasTypesFilter $gasStationsCitiesFilter $gasStationsDepartmentsFilter
                     HAVING `distance` < $radius $gasServicesFilter
                     ORDER BY `distance` ASC LIMIT 300;
         ";
