@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\CommandService;
 use App\Service\GasPriceService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +16,14 @@ class GasPriceUpdateCommand extends Command
     /** @var GasPriceService */
     private $gasPriceService;
 
-    public function __construct(GasPriceService $gasPriceService, string $name = null)
+    /** @var CommandService */
+    private $commandService;
+
+    public function __construct(GasPriceService $gasPriceService, CommandService $commandService, string $name = null)
     {
         parent::__construct($name);
         $this->gasPriceService = $gasPriceService;
+        $this->commandService = $commandService;
     }
 
     protected function configure(): void
@@ -28,7 +33,11 @@ class GasPriceUpdateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->gasPriceService->updateInstantGasPrices();
+        $this->commandService->start(self::class);
+
+        $this->gasPriceService->updateInstantGasPrices($this->commandService);
+
+        $this->commandService->end();
 
         return Command::SUCCESS;
     }

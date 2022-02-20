@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Address;
+use App\Entity\Command;
 use App\Entity\Currency;
 use App\Entity\GasPrice;
 use App\Entity\GasService;
@@ -46,5 +47,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Address', 'fas fa-map-marker-alt', Address::class);
         yield MenuItem::linkToCrud('Currencies', 'fas fa-map-marker-alt', Currency::class);
         yield MenuItem::linkToCrud('User', 'fas fa-map-marker-alt', User::class);
+        yield MenuItem::linkToCrud('Command', 'fas fa-map-marker-alt', Command::class);
     }
 }

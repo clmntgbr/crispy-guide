@@ -32,6 +32,9 @@ class GasPriceService
     /** @var MessageBusInterface */
     private $messageBus;
 
+    /** @var CommandService */
+    private $commandService;
+
     public function __construct(EntityManagerInterface $em, DotEnv $dotEnv, MessageBusInterface $messageBus)
     {
         $this->em = $em;
@@ -39,8 +42,10 @@ class GasPriceService
         $this->messageBus = $messageBus;
     }
 
-    public function updateInstantGasPrices(): void
+    public function updateInstantGasPrices(CommandService $commandService): void
     {
+        $this->commandService = $commandService;
+
         $gasStations = $this->em->getRepository(GasStation::class)->findGasStationById();
         $gasServices = $this->em->getRepository(GasStation::class)->findGasServiceByGasStationId();
         $types = $this->em->getRepository(GasType::class)->findGasTypeById();
@@ -68,8 +73,10 @@ class GasPriceService
         FileSystem::delete($xmlPath);
     }
 
-    public function updateYearGasPrices()
+    public function updateYearGasPrices(CommandService $commandService)
     {
+        $this->commandService = $commandService;
+
         $gasStations = $this->em->getRepository(GasStation::class)->findGasStationById();
         $gasServices = $this->em->getRepository(GasStation::class)->findGasServiceByGasStationId();
         $types = $this->em->getRepository(GasType::class)->findGasTypeById();
@@ -115,6 +122,8 @@ class GasPriceService
             "FRANCE",
             json_decode(str_replace("@", "", json_encode($element)), true)
         ));
+
+        $this->commandService->addMessageIteration('GasStation');
     }
 
     private function createGasService(string $stationId, \SimpleXMLElement $element, array $gasServices)
@@ -130,6 +139,8 @@ class GasPriceService
                 new GasStationId($stationId),
                 $item
             ));
+
+            $this->commandService->addMessageIteration('GasService');
         }
     }
 
@@ -183,6 +194,8 @@ class GasPriceService
             );
 
             file_put_contents(sprintf('public/sql/gas_prices/%s/%s/%s', $year, $department, $stationId), $query ,FILE_APPEND);
+
+            $this->commandService->addMessageIteration('GasPrice');
         }
     }
 
@@ -222,6 +235,8 @@ class GasPriceService
                 $date,
                 (string)$item->attributes()->valeur
             ));
+
+            $this->commandService->addMessageIteration('GasPrice');
         }
     }
 

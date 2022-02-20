@@ -64,7 +64,7 @@ class GasStationService
         $this->twig = $twig;
     }
 
-    public function update()
+    public function update(CommandService $commandService)
     {
         /** @var GasStation[]|null $gasStations */
         $gasStations = $this->em->getRepository(GasStation::class)->getGasStationsForDetails();
@@ -80,10 +80,12 @@ class GasStationService
                 new GasStationId($gasStation->getId()),
                 $response['place_id']
             ));
+
+            $commandService->addMessageIteration('GasStation');
         }
     }
 
-    public function updateGasStationStatusClosed()
+    public function updateGasStationStatusClosed(CommandService $commandService)
     {
         /** @var GasStation[]|null $gasStations */
         $gasStations = $this->em->getRepository(GasStation::class)->findGasStationStatusClosed();
@@ -92,6 +94,7 @@ class GasStationService
             if ($gasStation->getGasPrices()->count() <= 0) {
                 $gasStation->setClosedAt(new \DateTime('now'));
                 $this->gasStationStatusHelper->setStatus(GasStationStatusReference::CLOSED, $gasStation);
+                $commandService->addMessageIteration('GasStation');
                 continue;
             }
 
@@ -101,6 +104,7 @@ class GasStationService
             if ($date > $lastGasPrice->getDate()) {
                 $gasStation->setClosedAt($lastGasPrice->getDate());
                 $this->gasStationStatusHelper->setStatus(GasStationStatusReference::CLOSED, $gasStation);
+                $commandService->addMessageIteration('GasStation');
             }
         }
     }

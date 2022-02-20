@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Service\CommandService;
 use App\Service\GasStationService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +16,14 @@ class GasStationClosedCommand extends Command
     /** @var GasStationService */
     private $gasStationService;
 
-    public function __construct(GasStationService $gasStationService, string $name = null)
+    /** @var CommandService */
+    private $commandService;
+
+    public function __construct(GasStationService $gasStationService, CommandService $commandService, string $name = null)
     {
         parent::__construct($name);
         $this->gasStationService = $gasStationService;
+        $this->commandService = $commandService;
     }
 
     protected function configure(): void
@@ -28,7 +33,11 @@ class GasStationClosedCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->gasStationService->updateGasStationStatusClosed();
+        $this->commandService->start(self::class);
+
+        $this->gasStationService->updateGasStationStatusClosed($this->commandService);
+
+        $this->commandService->end();
 
         return Command::SUCCESS;
     }
