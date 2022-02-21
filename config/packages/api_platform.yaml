@@ -5,3 +5,18 @@ api_platform:
         json: ['application/merge-patch+json']
     swagger:
         versions: [3]
+    eager_loading:
+        enabled: false
+        force_eager: false
+        fetch_partial: true
+    collection:
+        pagination:
+            client_enabled: false
+            client_items_per_page: true
+            items_per_page: 10
+            maximum_items_per_page: 300
+    formats:
+        jsonld:
+            mime_types: [ 'application/ld+json' ]
+        json:
+            mime_types: [ 'application/json' ]

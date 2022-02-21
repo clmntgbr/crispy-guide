@@ -7,11 +7,13 @@ use App\Repository\CurrencyRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={"get"},
+ *     normalizationContext={"groups"={"read"}}
  * )
  * @ORM\Entity(repositoryClass=CurrencyRepository::class)
  */
@@ -25,18 +27,21 @@ class Currency
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer", options={"unsigned"=true})
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", unique=true, nullable=false)
+     * @Groups({"read"})
      */
     private $reference;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=false)
+     * @Groups({"read"})
      */
     private $label;
 

@@ -6,11 +6,13 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GasPriceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={"get"},
+ *     normalizationContext={"groups"={"read"}}
  * )
  * @ORM\Entity(repositoryClass=GasPriceRepository::class)
  */
@@ -23,6 +25,7 @@ class GasPrice
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer", options={"unsigned"=true})
+     * @Groups({"read"})
      */
     private $id;
 
@@ -30,6 +33,7 @@ class GasPrice
      * @var Currency|null
      * @ORM\ManyToOne(targetEntity=Currency::class, cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"read"})
      */
     public $currency;
 
@@ -37,6 +41,7 @@ class GasPrice
      * @var GasType|null
      * @ORM\ManyToOne(targetEntity=GasType::class, cascade={"persist"}, inversedBy="gasPrices")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"read"})
      */
     public $gasType;
 
@@ -44,24 +49,28 @@ class GasPrice
      * @var GasStation|null
      * @ORM\ManyToOne(targetEntity=GasStation::class, cascade={"persist"}, inversedBy="gasPrices")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"read"})
      */
     public $gasStation;
 
     /**
      * @var int|null
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
      */
     private $value;
 
     /**
      * @var \DateTime|null
      * @ORM\Column(type="datetime")
+     * @Groups({"read"})
      */
     private $date;
 
     /**
      * @var int|null
      * @ORM\Column(type="integer")
+     * @Groups({"read"})
      */
     private $dateTimestamp;
 

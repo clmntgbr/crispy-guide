@@ -23,6 +23,7 @@ class UserFixtures extends Fixture
         $user
             ->setEmail($this->dotEnv->findByParameter('ROOT_USER_EMAIL'))
             ->setPlainPassword('string')
+            ->setRoles(['ROLE_ADMIN'])
         ;
 
         $manager->persist($user);

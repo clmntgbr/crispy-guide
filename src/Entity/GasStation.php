@@ -8,11 +8,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={"get"},
+ *     normalizationContext={"groups"={"read"}}
  * )
  * @ORM\Entity(repositoryClass=GasStationRepository::class)
  */
@@ -25,24 +27,28 @@ class GasStation
      * @ORM\Id()
      * @ORM\GeneratedValue(strategy="NONE")
      * @ORM\Column(type="integer", options={"unsigned"=true})
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @var string|null
      * @ORM\Column(type="string")
+     * @Groups({"read"})
      */
     private $pop;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $name;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $company;
 
@@ -55,12 +61,14 @@ class GasStation
     /**
      * @var bool|null
      * @ORM\Column(type="boolean", options={"default" : 0})
+     * @Groups({"read"})
      */
     private $isFoundOnGouvMap;
 
     /**
      * @var \DateTime|null
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"read"})
      */
     private $closedAt;
 
@@ -68,6 +76,7 @@ class GasStation
      * @var Address|null
      * @ORM\OneToOne(targetEntity=Address::class, cascade={"persist", "remove"}, fetch="EAGER")
      * @ORM\JoinColumn(name="address_id", referencedColumnName="id")
+     * @Groups({"read"})
      */
     private $address;
 
@@ -75,6 +84,7 @@ class GasStation
      * @var GooglePlace|null
      * @ORM\OneToOne(targetEntity=GooglePlace::class, cascade={"persist", "remove"}, fetch="EAGER")
      * @ORM\JoinColumn(name="google_place_id", referencedColumnName="id")
+     * @Groups({"read"})
      */
     private $googlePlace;
 
@@ -82,6 +92,7 @@ class GasStation
      * @var GasStationStatus|null
      * @ORM\ManyToOne(targetEntity=GasStationStatus::class, cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"read"})
      */
     public $gasStationStatus;
 
@@ -89,6 +100,7 @@ class GasStation
      * @var Media|null
      * @ORM\ManyToOne(targetEntity=Media::class, cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
+     * @Groups({"read"})
      */
     public $preview;
 

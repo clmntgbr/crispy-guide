@@ -6,11 +6,13 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\AddressRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={"get"},
+ *     normalizationContext={"groups"={"read"}}
  * )
  * @ORM\Entity(repositoryClass=AddressRepository::class)
  */
@@ -23,60 +25,70 @@ class Address
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer", options={"unsigned"=true})
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $vicinity;
 
     /**
      * @var string|null
      * @ORM\Column(type="string")
+     * @Groups({"read"})
      */
     private $street;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $number;
 
     /**
      * @var string|null
      * @ORM\Column(type="string")
+     * @Groups({"read"})
      */
     private $city;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $region;
 
     /**
      * @var string|null
      * @ORM\Column(type="string")
+     * @Groups({"read"})
      */
     private $postalCode;
 
     /**
      * @var string|null
      * @ORM\Column(type="string")
+     * @Groups({"read"})
      */
     private $country;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $longitude;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $latitude;
 

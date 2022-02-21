@@ -6,11 +6,13 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GooglePlaceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={"get"},
+ *     normalizationContext={"groups"={"read"}}
  * )
  * @ORM\Entity(repositoryClass=GooglePlaceRepository::class)
  */
@@ -23,90 +25,105 @@ class GooglePlace
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer", options={"unsigned"=true})
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $googleId;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $url;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $website;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $phoneNumber;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $placeId;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $compoundCode;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $globalCode;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $googleRating;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $rating;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $reference;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $userRatingsTotal;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $icon;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"read"})
      */
     private $businessStatus;
 
     /**
      * @var array|null
      * @ORM\Column(type="array", nullable=true)
+     * @Groups({"read"})
      */
     private $openingHours;
 

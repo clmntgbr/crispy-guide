@@ -6,11 +6,13 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\GasStationStatusRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={"get"},
+ *     normalizationContext={"groups"={"read"}}
  * )
  * @ORM\Entity(repositoryClass=GasStationStatusRepository::class)
  */
@@ -23,18 +25,21 @@ class GasStationStatus
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer", options={"unsigned"=true})
+     * @Groups({"read"})
      */
     private $id;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", unique=true, nullable=false)
+     * @Groups({"read"})
      */
     private $reference;
 
     /**
      * @var string|null
      * @ORM\Column(type="string", nullable=false)
+     * @Groups({"read"})
      */
     private $label;
 
