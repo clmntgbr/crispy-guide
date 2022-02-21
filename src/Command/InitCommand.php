@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class InitCommand extends Command
@@ -91,17 +90,17 @@ class InitCommand extends Command
         $output = new BufferedOutput();
         $application->run($input, $output);
 
-        $io->title('Init Sql');
-
-        $finder = new Finder();
-        $finder->in(self::INIT_FILE_PATH);
-        $finder->name(self::INIT_FILE_NAME);
-
-        foreach( $finder as $file ){
-            $content = $file->getContents();
-            $stmt = $this->em->getConnection()->prepare($content);
-            $stmt->executeQuery();
-        }
+//        $io->title('Init Sql');
+//
+//        $finder = new Finder();
+//        $finder->in(self::INIT_FILE_PATH);
+//        $finder->name(self::INIT_FILE_NAME);
+//
+//        foreach( $finder as $file ){
+//            $content = $file->getContents();
+//            $stmt = $this->em->getConnection()->prepare($content);
+//            $stmt->executeQuery();
+//        }
 
 //        $io->title('Init Gas Prices');
 //

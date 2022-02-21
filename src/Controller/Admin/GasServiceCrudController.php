@@ -20,6 +20,13 @@ class GasServiceCrudController extends AbstractCrudController
         return GasService::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setPaginatorPageSize(50)
+        ;
+    }
+
     public function configureActions(Actions $actions): Actions
     {
         return $actions

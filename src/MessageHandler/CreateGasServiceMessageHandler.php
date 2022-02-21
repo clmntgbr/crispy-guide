@@ -7,6 +7,7 @@ use App\Entity\GasStation;
 use App\Message\CreateGasServiceMessage;
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class CreateGasServiceMessageHandler implements MessageHandlerInterface
@@ -36,6 +37,12 @@ class CreateGasServiceMessageHandler implements MessageHandlerInterface
         }
 
         $gasService = $this->em->getRepository(GasService::class)->findOneBy(['label' => $message->getLabel()]);
+
+        if ($gasService instanceof GasService) {
+            if ($gasStation->hasGasService($gasService)) {
+                throw new UnrecoverableMessageHandlingException(sprintf('Gas Service already linked (Label : %s)', $message->getLabel()));
+            }
+        }
 
         if (null === $gasService) {
             $gasService = new GasService();

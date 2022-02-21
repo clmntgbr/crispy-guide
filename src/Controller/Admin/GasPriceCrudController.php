@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
 class GasPriceCrudController extends AbstractCrudController
 {
@@ -32,7 +33,7 @@ class GasPriceCrudController extends AbstractCrudController
     {
         return $filters
             ->add('gasType')
-            ->add('gasStation')
+            ->add(TextFilter::new('gasStation'))
             ->add('currency')
             ->add(DateTimeFilter::new('date'))
             ->add(DateTimeFilter::new('createdAt'))
