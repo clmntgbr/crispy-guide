@@ -40,7 +40,9 @@ class CreateGasServiceMessageHandler implements MessageHandlerInterface
 
         if ($gasService instanceof GasService) {
             if ($gasStation->hasGasService($gasService)) {
-                throw new UnrecoverableMessageHandlingException(sprintf('Gas Service already linked (Label : %s)', $message->getLabel()));
+                throw new UnrecoverableMessageHandlingException(
+                    sprintf('Gas Service is already linked to this Gas Station (Gas Service Label : %s, Gas Station id : %s)', $message->getLabel(), $message->getGasStationId()->getId())
+                );
             }
         }
 

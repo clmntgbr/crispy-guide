@@ -3,7 +3,6 @@
 namespace App\Message;
 
 use App\EntityId\GasStationId;
-use App\EntityId\GasTypeId;
 
 class CreateGasServiceMessage
 {

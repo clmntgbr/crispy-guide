@@ -3,7 +3,6 @@
 namespace App\MessageHandler;
 
 use App\Entity\GasStation;
-use App\Entity\Media;
 use App\Helper\GasStationStatusHelper;
 use App\Lists\GasStationStatusReference;
 use App\Message\CreateGooglePlaceDetailsMessage;

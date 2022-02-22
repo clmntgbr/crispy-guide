@@ -125,6 +125,7 @@ class GasStationCrudController extends AbstractCrudController
                 AssociationField::new('gasStationStatus'),
                 AssociationField::new('address'),
                 AssociationField::new('googlePlace'),
+                BooleanField::new('isFoundOnGouvMap')->setFormTypeOption('disabled','disabled'),
                 DateTimeField::new('closedAt')
                     ->setFormat('dd/MM/Y HH:mm:ss')
                     ->renderAsNativeWidget(),

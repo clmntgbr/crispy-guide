@@ -23,10 +23,8 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            guard:
-                authenticators:
-                    - App\Security\Guard\LoginAuthenticator
-            entry_point: App\Security\Guard\LoginAuthenticator
+            custom_authenticators:
+                - App\Security\LoginAuthenticator
             logout:
                 path: security_logout
                 target: security_login
