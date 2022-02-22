@@ -47,6 +47,5 @@ final class Version20220125200009 extends AbstractMigration
         $this->addSql('DROP TABLE gas_stations_services');
         $this->addSql('DROP TABLE gas_station');
         $this->addSql('DROP TABLE gas_type');
-        $this->addSql('DROP TABLE messenger_messages');
     }
 }

@@ -30,8 +30,7 @@ class MapGasStationsService
             []
         );
 
-        dump($gasStations);
-        die;
+        return $gasStations;
     }
 
     /**

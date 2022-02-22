@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class InitCommand extends Command
@@ -19,7 +20,7 @@ class InitCommand extends Command
     protected static $defaultDescription = 'Init Project With Datas.';
 
     const INIT_FILE_PATH = 'public/sql';
-    const INIT_FILE_NAME = 'init.sql';
+    const INIT_FILE_NAME = 'datum.sql';
     const GAS_PRICES_DIRECTORY = 'public/sql/gas_prices';
 
     /** @var KernelInterface */
@@ -90,17 +91,17 @@ class InitCommand extends Command
         $output = new BufferedOutput();
         $application->run($input, $output);
 
-//        $io->title('Init Sql');
-//
-//        $finder = new Finder();
-//        $finder->in(self::INIT_FILE_PATH);
-//        $finder->name(self::INIT_FILE_NAME);
-//
-//        foreach( $finder as $file ){
-//            $content = $file->getContents();
-//            $stmt = $this->em->getConnection()->prepare($content);
-//            $stmt->executeQuery();
-//        }
+        $io->title('Init Sql');
+
+        $finder = new Finder();
+        $finder->in(self::INIT_FILE_PATH);
+        $finder->name(self::INIT_FILE_NAME);
+
+        foreach( $finder as $file ){
+            $content = $file->getContents();
+            $stmt = $this->em->getConnection()->prepare($content);
+            $stmt->executeQuery();
+        }
 
 //        $io->title('Init Gas Prices');
 //
@@ -108,14 +109,24 @@ class InitCommand extends Command
 //        unset($directories[0]);
 //        unset($directories[1]);
 //
-//
-//        $io->progressStart(count($directories));
+//        $count = 0;
 //
 //        foreach ($directories as $directory) {
 //            $directoriesDepartments = scandir(self::GAS_PRICES_DIRECTORY . "/$directory", SCANDIR_SORT_ASCENDING);
 //            unset($directoriesDepartments[0]);
 //            unset($directoriesDepartments[1]);
+//            $count += count($directoriesDepartments);
+//        }
+//
+//        $io->progressStart($count);
+//
+//        foreach ($directories as $directory) {
+//
+//            $directoriesDepartments = scandir(self::GAS_PRICES_DIRECTORY . "/$directory", SCANDIR_SORT_ASCENDING);
+//            unset($directoriesDepartments[0]);
+//            unset($directoriesDepartments[1]);
 //            foreach ($directoriesDepartments as $directoryDepartment) {
+////                $this->em->getConnection()->beginTransaction();
 //                $files = scandir(self::GAS_PRICES_DIRECTORY . "/$directory/$directoryDepartment", SCANDIR_SORT_ASCENDING);
 //                foreach ($files as $file) {
 //                    $finder = new Finder();
@@ -128,9 +139,9 @@ class InitCommand extends Command
 //                        $stmt->executeQuery();
 //                    }
 //                }
+////                $this->em->close();
+//                $io->progressAdvance();
 //            }
-//
-//            $io->progressAdvance();
 //        }
 //
 //        $io->progressFinish();
